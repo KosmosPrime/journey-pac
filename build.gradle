@@ -1,0 +1,90 @@
+plugins {
+	id 'eclipse'
+	id 'maven-publish'
+	id 'net.minecraftforge.gradle' version '5.1.+'
+}
+
+version = '1.0'
+group = 'local'
+archivesBaseName = 'journeypac'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+minecraft {
+	mappings channel: 'official', version: '1.19.2'
+
+/* Requires journeymap whose mixins don't work here
+	runs {
+		client {
+			workingDirectory project.file('run')
+			property 'forge.logging.markers', 'REGISTRIES'
+			property 'forge.logging.console.level', 'debug'
+			property 'forge.enabledGameTestNamespaces', 'journeypac'
+
+			mods {
+				journeypac {
+					source sourceSets.main
+				}
+			}
+		}
+
+		data {
+			workingDirectory project.file('run')
+			property 'forge.logging.markers', 'REGISTRIES'
+			property 'forge.logging.console.level', 'debug'
+			args '--mod', 'journeypac', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+			mods {
+				journeypac {
+					source sourceSets.main
+				}
+			}
+		}
+	}
+*/
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+repositories {
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+
+	maven {
+		url "https://jm.gserv.me/repository/maven-public/"
+		content {
+			includeGroup "info.journeymap"
+		}
+	}
+}
+
+dependencies {
+	minecraft 'net.minecraftforge:forge:1.19.2-43.1.52'
+	implementation group: 'curse.maven', name: 'openpac-636608', version: '4021875', changing: true
+	compileOnly group: 'info.journeymap', name: 'journeymap-api', version: '1.19.1-1.9-SNAPSHOT', changing: true
+}
+
+jar {
+	manifest {
+		attributes([
+				"Specification-Title": "journeypac",
+				"Specification-Vendor": "local",
+				"Specification-Version": "1",
+				"Implementation-Title": project.name,
+				"Implementation-Version": project.jar.archiveVersion,
+				"Implementation-Vendor": "local",
+				"Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+		])
+	}
+}
+
+jar.finalizedBy('reobfJar')
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
