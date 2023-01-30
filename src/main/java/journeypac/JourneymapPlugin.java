@@ -21,6 +21,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import xaero.pac.client.api.OpenPACClientAPI;
 import xaero.pac.client.claims.api.IClientDimensionClaimsManagerAPI;
 import xaero.pac.client.claims.api.IClientRegionClaimsAPI;
@@ -48,8 +50,27 @@ public class JourneymapPlugin implements IClientPlugin
 	private OpenPACClientAPI opacApi;
 	
 	private ResourceKey<Level> dimension;
-	private boolean showClaims = true;
+	private boolean showClaims = JPACConfig.CONFIG.showClaims.get();
 	private Map<Long, PolygonOverlay[]> claimMap = new HashMap<>();
+	
+	public JourneymapPlugin()
+	{
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReload);
+	}
+	
+	private void onConfigReload(ModConfigEvent.Reloading event)
+	{
+		if (event.getConfig().getSpec() == JPACConfig.SPEC)
+		{
+			boolean newShowClaims = JPACConfig.CONFIG.showClaims.get();
+			if (newShowClaims != showClaims)
+			{
+				showClaims = newShowClaims;
+				if (showClaims) showClaims();
+				else hideClaims();
+			}
+		}
+	}
 	
 	public String getModId()
 	{
@@ -164,6 +185,8 @@ public class JourneymapPlugin implements IClientPlugin
 		try
 		{
 			showClaims = btn.getToggled() != Boolean.TRUE;
+			JPACConfig.CONFIG.showClaims.set(showClaims);
+			JPACConfig.CONFIG.showClaims.save();
 			btn.setToggled(showClaims);
 			if (!claimMap.isEmpty())
 			{
@@ -235,21 +258,34 @@ public class JourneymapPlugin implements IClientPlugin
 		Integer subColor = playerInfo.getClaimsColor(claim.getSubConfigIndex());
 		int color = subColor != null ? subColor : playerInfo.getClaimsColor();
 		color &= 0xFFFFFF;
-		// get the name for this claim
-		String playerName = playerInfo.getPlayerUsername();
-		String subName = playerInfo.getClaimsName(claim.getSubConfigIndex());
-		String name = subName != null ? subName : playerInfo.getClaimsName();
-		String trueName = name == null || name.isEmpty() ? playerName : playerName + " / " + name;
+		String trueName = null;
+		if (JPACConfig.CONFIG.showClaimant.get())
+		{
+			// get the name for this claim
+			String playerName = playerInfo.getPlayerUsername();
+			String subName = playerInfo.getClaimsName(claim.getSubConfigIndex());
+			String name = subName != null ? subName : playerInfo.getClaimsName();
+			trueName = name == null || name.isEmpty() ? playerName : playerName + " / " + name;
+		}
 		// generate the polygon overlay for this chunk
-		ShapeProperties shape = new ShapeProperties().setFillColor(color).setFillOpacity(0.25f);
-		if (claim.isForceloadable()) shape.setStrokeWidth(2).setStrokeColor(color);
+		ShapeProperties shape = new ShapeProperties().setFillColor(color)
+				.setFillOpacity(JPACConfig.CONFIG.claimOpacity.get().floatValue());
+		if (JPACConfig.CONFIG.showForceloads.get() && claim.isForceloadable())
+		{
+			shape.setStrokeColor(color)
+					.setStrokeOpacity(JPACConfig.CONFIG.forceloadOpacity.get().floatValue())
+					.setStrokeWidth(JPACConfig.CONFIG.forceloadStroke.get().floatValue());
+		}
 		else shape.setStrokeOpacity(0);
 		int x0 = chunkX << 4, z0 = chunkZ << 4, x1 = x0 + 16, z1 = z0 + 16;
 		MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
 				new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
 		PolygonOverlay overlay = new PolygonOverlay(getModId(), "claim_" + chunkX + "_" + chunkZ, dimension, shape, area);
-		overlay.setTitle(trueName);
-		overlay.setTextProperties(new TextProperties().setColor(color));
+		if (trueName != null)
+		{
+			overlay.setTitle(trueName);
+			overlay.setTextProperties(new TextProperties().setColor(color));
+		}
 		return overlay;
 	}
 	
