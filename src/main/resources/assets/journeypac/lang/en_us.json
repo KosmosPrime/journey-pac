@@ -1,3 +1,6 @@
 {
-	"button.journeypac.toggle_claims": "Show OPaC claims"
+	"button.journeypac.toggle_claims": "Show OPaC claims",
+	"key.journeypac.category": "JourneyPAC",
+	"key.journeypac.claim_mode": "Claim Chunk",
+	"key.journeypac.forceload_mode": "Forceload Chunk"
 }

@@ -5,6 +5,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lwjgl.glfw.GLFW;
+
 import journeymap.client.api.ClientPlugin;
 import journeymap.client.api.IClientAPI;
 import journeymap.client.api.IClientPlugin;
@@ -12,11 +14,14 @@ import journeymap.client.api.display.IThemeButton;
 import journeymap.client.api.display.PolygonOverlay;
 import journeymap.client.api.display.ThemeButtonDisplay;
 import journeymap.client.api.event.ClientEvent;
+import journeymap.client.api.event.FullscreenMapEvent.ClickEvent;
+import journeymap.client.api.event.FullscreenMapEvent.Stage;
 import journeymap.client.api.event.forge.FullscreenDisplayEvent.AddonButtonDisplayEvent;
 import journeymap.client.api.model.MapPolygon;
 import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -80,7 +85,8 @@ public class JourneymapPlugin implements IClientPlugin
 	public void initialize(IClientAPI jmApi)
 	{
 		this.jmApi = jmApi;
-		jmApi.subscribe(getModId(), EnumSet.of(ClientEvent.Type.MAPPING_STARTED, ClientEvent.Type.MAPPING_STOPPED));
+		jmApi.subscribe(getModId(), EnumSet.of(ClientEvent.Type.MAPPING_STARTED, ClientEvent.Type.MAPPING_STOPPED,
+				ClientEvent.Type.MAP_CLICKED));
 		MinecraftForge.EVENT_BUS.addListener(this::onAddonButtonDisplayEvent);
 		
 		opacApi = OpenPACClientAPI.get();
@@ -361,6 +367,53 @@ public class JourneymapPlugin implements IClientPlugin
 					hideClaims();
 					claimMap.clear();
 					dimension = null;
+					break;
+				}
+				case MAP_CLICKED:
+				{
+					ClickEvent clickEvent = (ClickEvent) event;
+					if (dimension != null && event.dimension == dimension)
+					{
+						if (clickEvent.getStage() == Stage.PRE)
+						{
+							var claimsManager = opacApi.getClaimsManager();
+							int chunkX = SectionPos.blockToSectionCoord(clickEvent.getLocation().getX());
+							int chunkZ = SectionPos.blockToSectionCoord(clickEvent.getLocation().getZ());
+							switch (KeyMappings.getClaimMode())
+							{
+								case NONE:
+									break;
+								case CLAIM:
+								{
+									if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT)
+									{
+										clickEvent.cancel();
+										claimsManager.requestClaim(chunkX, chunkZ, claimsManager.isServerMode());
+									}
+									else if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
+									{
+										clickEvent.cancel();
+										claimsManager.requestUnclaim(chunkX, chunkZ, claimsManager.isServerMode());
+									}
+									break;
+								}
+								case FORCELOAD:
+								{
+									if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT)
+									{
+										clickEvent.cancel();
+										claimsManager.requestForceload(chunkX, chunkZ, true, claimsManager.isServerMode());
+									}
+									else if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
+									{
+										clickEvent.cancel();
+										claimsManager.requestForceload(chunkX, chunkZ, false, claimsManager.isServerMode());
+									}
+									break;
+								}
+							}
+						}
+					}
 					break;
 				}
 				default:
