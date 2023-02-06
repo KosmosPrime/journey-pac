@@ -7,24 +7,33 @@ import java.util.Map;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import journeymap.client.api.ClientPlugin;
 import journeymap.client.api.IClientAPI;
 import journeymap.client.api.IClientPlugin;
+import journeymap.client.api.display.Context;
 import journeymap.client.api.display.IThemeButton;
 import journeymap.client.api.display.PolygonOverlay;
 import journeymap.client.api.display.ThemeButtonDisplay;
 import journeymap.client.api.event.ClientEvent;
+import journeymap.client.api.event.DisplayUpdateEvent;
 import journeymap.client.api.event.FullscreenMapEvent.ClickEvent;
+import journeymap.client.api.event.FullscreenMapEvent.MouseDraggedEvent;
+import journeymap.client.api.event.FullscreenMapEvent.MouseMoveEvent;
 import journeymap.client.api.event.FullscreenMapEvent.Stage;
 import journeymap.client.api.event.forge.FullscreenDisplayEvent.AddonButtonDisplayEvent;
 import journeymap.client.api.model.MapPolygon;
 import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
+import journeymap.client.api.util.UIState;
+import journeypac.KeyMappings.ClaimMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -58,9 +67,117 @@ public class JourneymapPlugin implements IClientPlugin
 	private boolean showClaims = JPACConfig.CONFIG.showClaims.get();
 	private Map<Long, PolygonOverlay[]> claimMap = new HashMap<>();
 	
+	private ClaimMode areaMode;
+	private boolean areaAdd;
+	private int areaStartX;
+	private int areaStartZ;
+	private PolygonOverlay areaOverlay;
+	// for overlay caching only
+	private int areaEndX;
+	private int areaEndZ;
+	
 	public JourneymapPlugin()
 	{
+		MinecraftForge.EVENT_BUS.addListener(this::onMousePre);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReload);
+	}
+	
+	// use pre event because the fullscreen map consumes all
+	private void onMousePre(InputEvent.MouseButton.Pre event)
+	{
+		if (event.getAction() == InputConstants.RELEASE && areaMode != null)
+		{
+			var claimsManager = opacApi.getClaimsManager();
+			if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd)
+			{
+				// don't cancel, this is the raw event not the JM event equivalent we canceled
+				if (areaEndX == areaStartX && areaEndZ == areaStartZ)
+				{
+					// single chunk claim (wasn't dragged or only one chunk)
+					switch (areaMode)
+					{
+						case CLAIM:
+							claimsManager.requestClaim(areaStartX, areaStartZ, claimsManager.isServerMode());
+							break;
+						case FORCELOAD:
+							claimsManager.requestForceload(areaStartX, areaStartZ, true, claimsManager.isServerMode());
+							break;
+						default:
+							JourneyPAC.LOGGER.warn("Unhandled chunk claim mode " + areaMode);
+					}
+				}
+				else
+				{
+					// area claim (more than 1 chunk selected)
+					int x0 = Math.min(areaStartX, areaEndX), z0 = Math.min(areaStartZ, areaEndZ);
+					int x1 = Math.max(areaStartX, areaEndX), z1 = Math.max(areaStartZ, areaEndZ);
+					switch (areaMode)
+					{
+						case CLAIM:
+							claimsManager.requestAreaClaim(x0, z0, x1, z1, claimsManager.isServerMode());
+							break;
+						case FORCELOAD:
+							claimsManager.requestAreaForceload(x0, z0, x1, z1, true, claimsManager.isServerMode());
+							break;
+						default:
+							JourneyPAC.LOGGER.warn("Unhandled area claim mode " + areaMode);
+					}
+				}
+				
+				// done with the active claim, clean up
+				areaMode = null;
+				if (areaOverlay != null)
+				{
+					jmApi.remove(areaOverlay);
+					areaOverlay = null;
+				}
+			}
+			else if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)
+			{
+				// don't cancel, this is the raw event not the JM event equivalent we canceled
+				if (areaEndX == areaStartX && areaEndZ == areaStartZ)
+				{
+					// single chunk unclaim (wasn't dragged or only one chunk)
+					switch (areaMode)
+					{
+						case CLAIM:
+							claimsManager.requestUnclaim(areaStartX, areaStartZ, claimsManager.isServerMode());
+							break;
+						case FORCELOAD:
+							claimsManager.requestForceload(areaStartX, areaStartZ, false, claimsManager.isServerMode());
+							break;
+						default:
+							JourneyPAC.LOGGER.warn("Unhandled chunk unclaim mode " + areaMode);
+					}
+					
+				}
+				else
+				{
+					// area unclaim (more than 1 chunk selected)
+					int x0 = Math.min(areaStartX, areaEndX), z0 = Math.min(areaStartZ, areaEndZ);
+					int x1 = Math.max(areaStartX, areaEndX), z1 = Math.max(areaStartZ, areaEndZ);
+					switch (areaMode)
+					{
+						case CLAIM:
+							claimsManager.requestAreaUnclaim(x0, z0, x1, z1, claimsManager.isServerMode());
+							break;
+						case FORCELOAD:
+							claimsManager.requestAreaForceload(x0, z0, x1, z1, false, claimsManager.isServerMode());
+							break;
+						default:
+							JourneyPAC.LOGGER.warn("Unhandled area unclaim mode " + areaMode);
+					}
+				}
+				
+				// done with the active claim, clean up
+				areaMode = null;
+				if (areaOverlay != null)
+				{
+					jmApi.remove(areaOverlay);
+					areaOverlay = null;
+				}
+			}
+		}
 	}
 	
 	private void onConfigReload(ModConfigEvent.Reloading event)
@@ -85,8 +202,9 @@ public class JourneymapPlugin implements IClientPlugin
 	public void initialize(IClientAPI jmApi)
 	{
 		this.jmApi = jmApi;
-		jmApi.subscribe(getModId(), EnumSet.of(ClientEvent.Type.MAPPING_STARTED, ClientEvent.Type.MAPPING_STOPPED,
-				ClientEvent.Type.MAP_CLICKED));
+		jmApi.subscribe(getModId(), EnumSet.of(ClientEvent.Type.DISPLAY_UPDATE, ClientEvent.Type.MAPPING_STARTED,
+				ClientEvent.Type.MAPPING_STOPPED, ClientEvent.Type.MAP_CLICKED, ClientEvent.Type.MAP_DRAGGED,
+				ClientEvent.Type.MAP_MOUSE_MOVED));
 		MinecraftForge.EVENT_BUS.addListener(this::onAddonButtonDisplayEvent);
 		
 		opacApi = OpenPACClientAPI.get();
@@ -336,6 +454,20 @@ public class JourneymapPlugin implements IClientPlugin
 		{
 			switch (event.type)
 			{
+				case DISPLAY_UPDATE:
+				{
+					UIState display = ((DisplayUpdateEvent) event).uiState;
+					if (display.ui == Context.UI.Fullscreen && !display.active)
+					{
+						areaMode = null;
+						if (areaOverlay != null)
+						{
+							jmApi.remove(areaOverlay);
+							areaOverlay = null;
+						}
+					}
+					break;
+				}
 				case MAPPING_STARTED:
 				{
 					if (dimension != null)
@@ -374,44 +506,68 @@ public class JourneymapPlugin implements IClientPlugin
 					ClickEvent clickEvent = (ClickEvent) event;
 					if (dimension != null && event.dimension == dimension)
 					{
-						if (clickEvent.getStage() == Stage.PRE)
+						if (clickEvent.getStage() == Stage.PRE && areaMode == null &&
+								(clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT ||
+										clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT))
 						{
-							var claimsManager = opacApi.getClaimsManager();
-							int chunkX = SectionPos.blockToSectionCoord(clickEvent.getLocation().getX());
-							int chunkZ = SectionPos.blockToSectionCoord(clickEvent.getLocation().getZ());
-							switch (KeyMappings.getClaimMode())
+							ClaimMode mode = KeyMappings.getClaimMode();
+							if (mode != ClaimMode.NONE)
 							{
-								case NONE:
-									break;
-								case CLAIM:
-								{
-									if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT)
-									{
-										clickEvent.cancel();
-										claimsManager.requestClaim(chunkX, chunkZ, claimsManager.isServerMode());
-									}
-									else if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
-									{
-										clickEvent.cancel();
-										claimsManager.requestUnclaim(chunkX, chunkZ, claimsManager.isServerMode());
-									}
-									break;
-								}
-								case FORCELOAD:
-								{
-									if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT)
-									{
-										clickEvent.cancel();
-										claimsManager.requestForceload(chunkX, chunkZ, true, claimsManager.isServerMode());
-									}
-									else if (clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT)
-									{
-										clickEvent.cancel();
-										claimsManager.requestForceload(chunkX, chunkZ, false, claimsManager.isServerMode());
-									}
-									break;
-								}
+								clickEvent.cancel();
+								areaMode = mode;
+								areaAdd = clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT;
+								areaStartX = SectionPos.blockToSectionCoord(clickEvent.getLocation().getX());
+								areaStartZ = SectionPos.blockToSectionCoord(clickEvent.getLocation().getZ());
+								areaEndX = areaStartX;
+								areaEndZ = areaStartZ;
 							}
+						}
+					}
+					break;
+				}
+				case MAP_DRAGGED:
+				{
+					MouseDraggedEvent dragEvent = (MouseDraggedEvent) event;
+					if (dragEvent.getStage() == Stage.PRE && areaMode != null &&
+							((dragEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd) ||
+									(dragEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)))
+					{
+						// cancel dragging events (which keep appearing) while we're area-claiming
+						dragEvent.cancel();
+					}
+					break;
+				}
+				case MAP_MOUSE_MOVED:
+				{
+					MouseMoveEvent moveEvent = (MouseMoveEvent) event;
+					if (areaMode != null)
+					{
+						// create or update the claim preview
+						int currX = SectionPos.blockToSectionCoord(moveEvent.getLocation().getX());
+						int currZ = SectionPos.blockToSectionCoord(moveEvent.getLocation().getZ());
+						if (areaOverlay == null || currX != areaEndX || currZ != areaEndZ)
+						{
+							areaEndX = currX;
+							areaEndZ = currZ;
+							int x0 = SectionPos.sectionToBlockCoord(Math.min(currX, areaStartX));
+							int z0 = SectionPos.sectionToBlockCoord(Math.min(currZ, areaStartZ));
+							int x1 = SectionPos.sectionToBlockCoord(Math.max(currX, areaStartX) + 1);
+							int z1 = SectionPos.sectionToBlockCoord(Math.max(currZ, areaStartZ) + 1);
+							MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
+									new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
+							if (areaOverlay == null)
+							{
+								ShapeProperties shape = new ShapeProperties()
+										.setStrokeColor(0xFFFFFF).setFillColor(0xFFFFFF)
+										.setFillOpacity(JPACConfig.CONFIG.claimOpacity.get().floatValue());
+								areaOverlay = new PolygonOverlay(getModId(), "claim_area", dimension, shape, area);
+							}
+							else
+							{
+								areaOverlay.setOuterArea(area);
+								areaOverlay.flagForRerender();
+							}
+							jmApi.show(areaOverlay);
 						}
 					}
 					break;
