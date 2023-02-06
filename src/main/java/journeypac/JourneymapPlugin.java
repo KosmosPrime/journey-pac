@@ -28,10 +28,12 @@ import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
 import journeymap.client.api.util.UIState;
 import journeypac.KeyMappings.ClaimMode;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -75,6 +77,11 @@ public class JourneymapPlugin implements IClientPlugin
 	// for overlay caching only
 	private int areaEndX;
 	private int areaEndZ;
+	
+	private PolygonOverlay validOverlay;
+	private int validCenterX;
+	private int validCenterZ;
+	private int validRange;
 	
 	public JourneymapPlugin()
 	{
@@ -131,6 +138,11 @@ public class JourneymapPlugin implements IClientPlugin
 					jmApi.remove(areaOverlay);
 					areaOverlay = null;
 				}
+				if (validOverlay != null)
+				{
+					jmApi.remove(validOverlay);
+					validOverlay = null;
+				}
 			}
 			else if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)
 			{
@@ -175,6 +187,11 @@ public class JourneymapPlugin implements IClientPlugin
 				{
 					jmApi.remove(areaOverlay);
 					areaOverlay = null;
+				}
+				if (validOverlay != null)
+				{
+					jmApi.remove(validOverlay);
+					validOverlay = null;
 				}
 			}
 		}
@@ -568,6 +585,41 @@ public class JourneymapPlugin implements IClientPlugin
 								areaOverlay.flagForRerender();
 							}
 							jmApi.show(areaOverlay);
+						}
+						
+						float validOpacity = JPACConfig.CONFIG.validAreaOpacity.get().floatValue();
+						if (validOpacity > 0)
+						{
+							// only update on mouse move, you normally won't move while in the fullscreen map
+							Minecraft mc = Minecraft.getInstance();
+							if (mc.player != null)
+							{
+								ChunkPos chunk = mc.player.chunkPosition();
+								int chunkX = chunk.x, chunkZ = chunk.z;
+								int range = opacApi.getClaimsManager().getMaxClaimDistance();
+								if (validOverlay == null || (chunkX != validCenterX) || (chunkZ != validCenterZ) || (range != validRange))
+								{
+									// extend by 1 block to avoid drawing in the same place as the claim rectangle
+									int x0 = SectionPos.sectionToBlockCoord(chunkX - range) - 1;
+									int z0 = SectionPos.sectionToBlockCoord(chunkZ - range) - 1;
+									int x1 = SectionPos.sectionToBlockCoord(chunkX + range + 1) + 1;
+									int z1 = SectionPos.sectionToBlockCoord(chunkZ + range + 1) + 1;
+									MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
+											new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
+									if (validOverlay == null)
+									{
+										ShapeProperties shape = new ShapeProperties().setStrokeColor(0xBFBFBF)
+												.setStrokeOpacity(validOpacity).setFillOpacity(0).setStrokeWidth(2);
+										validOverlay = new PolygonOverlay(getModId(), "valid_claim_area", dimension, shape, area);
+									}
+									else
+									{
+										validOverlay.setOuterArea(area);
+										validOverlay.flagForRerender();
+									}
+									jmApi.show(validOverlay);
+								}
+							}
 						}
 					}
 					break;

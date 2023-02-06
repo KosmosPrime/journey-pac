@@ -22,6 +22,7 @@ public class JPACConfig
 	public final DoubleValue claimOpacity;
 	public final DoubleValue forceloadOpacity;
 	public final DoubleValue forceloadStroke;
+	public final DoubleValue validAreaOpacity;
 	
 	protected JPACConfig(ForgeConfigSpec.Builder builder)
 	{
@@ -43,5 +44,7 @@ public class JPACConfig
 		forceloadStroke = builder.comment("Thickness of the forceload marker (in pixels)")
 				.worldRestart()
 				.defineInRange("forceload_stroke", 2.0, 0, 16);
+		validAreaOpacity = builder.comment("Opacity of the claimable area outline (0 is invisible)")
+				.defineInRange("forceload_stroke", 0.5, 0, 1);
 	}
 }
