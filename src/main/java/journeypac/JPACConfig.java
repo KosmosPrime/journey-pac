@@ -45,6 +45,6 @@ public class JPACConfig
 				.worldRestart()
 				.defineInRange("forceload_stroke", 2.0, 0, 16);
 		validAreaOpacity = builder.comment("Opacity of the claimable area outline (0 is invisible)")
-				.defineInRange("forceload_stroke", 0.5, 0, 1);
+				.defineInRange("valid_area_opacity", 0.5, 0, 1);
 	}
 }
