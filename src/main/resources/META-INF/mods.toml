@@ -9,6 +9,7 @@ displayName="JourneyPAC"
 credits="Inspired by Journeymap Integrations (for FTB claims)"
 authors="Kosmos"
 displayTest="IGNORE_ALL_VERSION"
+logoFile="logo.png"
 description='''
 Journeymap integration for Open Parties and Claims (by Xaero).
 '''
