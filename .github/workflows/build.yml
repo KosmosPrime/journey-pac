@@ -1,5 +1,8 @@
 name: Gradle JAR
-on: [push, pull_request]
+on:
+  push:
+    tags:
+    - '**'
 permissions:
   contents: read
 
