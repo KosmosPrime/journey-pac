@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="[43,)"
+license="All rights reserved"
+
+[[mods]]
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
+credits="Inspired by Journeymap Integrations (for FTB claims)"
+authors="${mod_author}"
+displayTest="IGNORE_ALL_VERSION"
+logoFile="logo.png"
+description='''
+Journeymap integration for Open Parties and Claims (by Xaero).
+'''
+
+[[dependencies.journeypac]]
+	modId="forge"
+	mandatory=true
+	versionRange="[43,)"
+	ordering="NONE"
+	side="CLIENT"
+
+[[dependencies.journeypac]]
+	modId="journeymap"
+	mandatory=true
+	versionRange="[5.9,)"
+	ordering="NONE"
+	side="CLIENT"
+
+[[dependencies.journeypac]]
+	modId="openpartiesandclaims"
+	mandatory=true
+	versionRange="[0.15.1,)"
+	ordering="NONE"
+	side="CLIENT"

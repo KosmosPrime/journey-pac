@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "${mod_id}",
+	"version": "${version}",
+
+	"name": "${mod_name}",
+	"description": "Journeymap integration for Open Parties and Claims (by Xaero).",
+	"authors": [
+		"${mod_author}"
+	],
+	"contact": {
+		"sources": "https://github.com/KosmosPrime/journey-pac"
+	},
+
+	"license": "MIT",
+	"icon": "logo.png",
+
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"journeypac.JourneyPAC"
+		]
+	},
+
+	"depends": {
+		"fabricloader": ">=0.14",
+		"fabric": "*",
+		"minecraft": "1.19.x",
+		"java": ">=17"
+	}
+}
