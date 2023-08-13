@@ -1,6 +1,7 @@
 package journeypac.platform;
 
 import journeypac.JourneyPAC;
+import journeypac.platform.FabricKeyMapFacade;
 import journeypac.platform.JPACConfig;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraftforge.api.ModLoadingContext;
@@ -9,9 +10,12 @@ import net.minecraftforge.api.fml.event.config.ModConfigEvents;
 
 public final class FabricClient implements ClientModInitializer
 {
+	private FabricKeyMapFacade keyMap;
+	
 	public FabricClient()
 	{
-		JourneyPAC.create(JPACConfig.CONFIG);
+		keyMap = new FabricKeyMapFacade();
+		JourneyPAC.create(JPACConfig.CONFIG, keyMap);
 	}
 	
 	public void onInitializeClient()
@@ -21,5 +25,8 @@ public final class FabricClient implements ClientModInitializer
 		{
 			if (config.getSpec() == JPACConfig.SPEC) JPACConfig.CONFIG.fireConfigReload();
 		});
+		
+		keyMap.onInit();
+		keyMap.onRegister();
 	}
 }

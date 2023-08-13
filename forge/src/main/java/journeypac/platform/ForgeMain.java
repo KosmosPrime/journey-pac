@@ -1,6 +1,7 @@
 package journeypac.platform;
 
 import journeypac.JourneyPAC;
+import journeypac.platform.ForgeKeyMapFacade;
 import journeypac.platform.JPACConfig;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -13,7 +14,7 @@ public final class ForgeMain
 {
 	public ForgeMain()
 	{
-		JourneyPAC.create(JPACConfig.CONFIG);
+		JourneyPAC.create(JPACConfig.CONFIG, new ForgeKeyMapFacade());
 		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, JPACConfig.SPEC);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReload);
 	}

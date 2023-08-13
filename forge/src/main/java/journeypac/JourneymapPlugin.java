@@ -64,6 +64,7 @@ public class JourneymapPlugin implements IClientPlugin
 	private IClientAPI jmApi;
 	private OpenPACClientAPI opacApi;
 	private ConfigFacade config;
+	private KeyMappings keyMap;
 	
 	private ResourceKey<Level> dimension;
 	private boolean showClaims;
@@ -85,7 +86,9 @@ public class JourneymapPlugin implements IClientPlugin
 	
 	public JourneymapPlugin()
 	{
-		config = JourneyPAC.getInstance().getConfig();
+		JourneyPAC mod = JourneyPAC.getInstance();
+		config = mod.getConfig();
+		keyMap = mod.getKeyMappings();
 		MinecraftForge.EVENT_BUS.addListener(this::onMousePre);
 		config.onConfigReload(this::onConfigReload);
 		showClaims = config.getShowClaims();
@@ -525,7 +528,7 @@ public class JourneymapPlugin implements IClientPlugin
 								(clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT ||
 										clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT))
 						{
-							ClaimMode mode = KeyMappings.getClaimMode();
+							ClaimMode mode = keyMap.getClaimMode();
 							if (mode != ClaimMode.NONE)
 							{
 								clickEvent.cancel();
