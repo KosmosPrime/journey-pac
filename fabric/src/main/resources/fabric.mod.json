@@ -17,8 +17,8 @@
 
 	"environment": "client",
 	"entrypoints": {
-		"main": [
-			"journeypac.JourneyPAC"
+		"client": [
+			"journeypac.platform.FabricClient"
 		]
 	},
 

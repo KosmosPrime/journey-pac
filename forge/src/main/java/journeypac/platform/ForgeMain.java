@@ -1,21 +1,17 @@
-package journeypac;
+package journeypac.platform;
 
-import org.slf4j.Logger;
-
-import com.mojang.logging.LogUtils;
-
+import journeypac.JourneyPAC;
+import journeypac.JPACConfig;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 
 @Mod(JourneyPAC.MODID)
-public class JourneyPAC
+public final class ForgeMain
 {
-	public static final String MODID = "journeypac";
-	public static final Logger LOGGER = LogUtils.getLogger();
-	
-	public JourneyPAC()
+	public ForgeMain()
 	{
+		JourneyPAC.create();
 		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, JPACConfig.SPEC);
 	}
 }
