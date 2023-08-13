@@ -28,6 +28,7 @@ import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
 import journeymap.client.api.util.UIState;
 import journeypac.KeyMappings.ClaimMode;
+import journeypac.platform.ConfigFacade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -37,8 +38,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import xaero.pac.client.api.OpenPACClientAPI;
 import xaero.pac.client.claims.api.IClientDimensionClaimsManagerAPI;
 import xaero.pac.client.claims.api.IClientRegionClaimsAPI;
@@ -64,9 +63,10 @@ public class JourneymapPlugin implements IClientPlugin
 	
 	private IClientAPI jmApi;
 	private OpenPACClientAPI opacApi;
+	private ConfigFacade config;
 	
 	private ResourceKey<Level> dimension;
-	private boolean showClaims = JPACConfig.CONFIG.showClaims.get();
+	private boolean showClaims;
 	private Map<Long, PolygonOverlay[]> claimMap = new HashMap<>();
 	
 	private ClaimMode areaMode;
@@ -85,8 +85,10 @@ public class JourneymapPlugin implements IClientPlugin
 	
 	public JourneymapPlugin()
 	{
+		config = JourneyPAC.getInstance().getConfig();
 		MinecraftForge.EVENT_BUS.addListener(this::onMousePre);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReload);
+		config.onConfigReload(this::onConfigReload);
+		showClaims = config.getShowClaims();
 	}
 	
 	// use pre event because the fullscreen map consumes all
@@ -197,17 +199,14 @@ public class JourneymapPlugin implements IClientPlugin
 		}
 	}
 	
-	private void onConfigReload(ModConfigEvent.Reloading event)
+	private void onConfigReload()
 	{
-		if (event.getConfig().getSpec() == JPACConfig.SPEC)
+		boolean newShowClaims = config.getShowClaims();
+		if (newShowClaims != showClaims)
 		{
-			boolean newShowClaims = JPACConfig.CONFIG.showClaims.get();
-			if (newShowClaims != showClaims)
-			{
-				showClaims = newShowClaims;
-				if (showClaims) showClaims();
-				else hideClaims();
-			}
+			showClaims = newShowClaims;
+			if (showClaims) showClaims();
+			else hideClaims();
 		}
 	}
 	
@@ -326,8 +325,7 @@ public class JourneymapPlugin implements IClientPlugin
 		try
 		{
 			showClaims = btn.getToggled() != Boolean.TRUE;
-			JPACConfig.CONFIG.showClaims.set(showClaims);
-			JPACConfig.CONFIG.showClaims.save();
+			config.setShowClaims(showClaims);
 			btn.setToggled(showClaims);
 			if (!claimMap.isEmpty())
 			{
@@ -400,7 +398,7 @@ public class JourneymapPlugin implements IClientPlugin
 		int color = subColor != null ? subColor : playerInfo.getClaimsColor();
 		color &= 0xFFFFFF;
 		String trueName = null;
-		if (JPACConfig.CONFIG.showClaimant.get())
+		if (config.getShowClaimant())
 		{
 			// get the name for this claim
 			String playerName = playerInfo.getPlayerUsername();
@@ -410,12 +408,12 @@ public class JourneymapPlugin implements IClientPlugin
 		}
 		// generate the polygon overlay for this chunk
 		ShapeProperties shape = new ShapeProperties().setFillColor(color)
-				.setFillOpacity(JPACConfig.CONFIG.claimOpacity.get().floatValue());
-		if (JPACConfig.CONFIG.showForceloads.get() && claim.isForceloadable())
+				.setFillOpacity((float) config.getClaimOpacity());
+		if (config.getShowForceloads() && claim.isForceloadable())
 		{
 			shape.setStrokeColor(color)
-					.setStrokeOpacity(JPACConfig.CONFIG.forceloadOpacity.get().floatValue())
-					.setStrokeWidth(JPACConfig.CONFIG.forceloadStroke.get().floatValue());
+					.setStrokeOpacity((float) config.getForceloadOpacity())
+					.setStrokeWidth((float) config.getForceloadStroke());
 		}
 		else shape.setStrokeOpacity(0);
 		int x0 = chunkX << 4, z0 = chunkZ << 4, x1 = x0 + 16, z1 = z0 + 16;
@@ -576,7 +574,7 @@ public class JourneymapPlugin implements IClientPlugin
 							{
 								ShapeProperties shape = new ShapeProperties()
 										.setStrokeColor(0xFFFFFF).setFillColor(0xFFFFFF)
-										.setFillOpacity(JPACConfig.CONFIG.claimOpacity.get().floatValue());
+										.setFillOpacity((float) config.getClaimOpacity());
 								areaOverlay = new PolygonOverlay(getModId(), "claim_area", dimension, shape, area);
 							}
 							else
@@ -587,7 +585,7 @@ public class JourneymapPlugin implements IClientPlugin
 							jmApi.show(areaOverlay);
 						}
 						
-						float validOpacity = JPACConfig.CONFIG.validAreaOpacity.get().floatValue();
+						float validOpacity = (float) config.getValidAreaOpacity();
 						if (validOpacity > 0)
 						{
 							// only update on mouse move, you normally won't move while in the fullscreen map

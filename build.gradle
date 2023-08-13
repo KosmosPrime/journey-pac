@@ -52,6 +52,13 @@ subprojects {
 				includeGroup "info.journeymap"
 			}
 		}
+
+		maven {
+			url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+			content {
+				includeGroup "net.minecraftforge"
+			}
+		}
 	}
 
 	tasks.withType(JavaCompile).configureEach {

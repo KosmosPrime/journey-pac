@@ -22,6 +22,8 @@ minecraft {
 
 dependencies {
 	compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
+
+	compileOnly "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 }
 
 processResources {
