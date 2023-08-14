@@ -30,6 +30,8 @@
 		"fabric": "*",
 		"minecraft": "1.19.x",
 		"java": ">=17",
-		"forgeconfigapiport": "*"
+		"forgeconfigapiport": "*",
+		"journeymap": ">=5.9",
+		"openpartiesandclaims": ">=0.15"
 	}
 }

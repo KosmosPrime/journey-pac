@@ -31,6 +31,6 @@ Journeymap integration for Open Parties and Claims (by Xaero).
 [[dependencies.journeypac]]
 	modId="openpartiesandclaims"
 	mandatory=true
-	versionRange="[0.15.1,)"
+	versionRange="[0.15,)"
 	ordering="NONE"
 	side="CLIENT"

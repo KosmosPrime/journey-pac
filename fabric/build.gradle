@@ -14,8 +14,8 @@ dependencies {
 	implementation project(":common")
 
 	modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.11" // same as OPaC
-	modImplementation group: 'curse.maven', name: 'openpac-636608', version: '4021642', changing: true
-	modApi group: 'info.journeymap', name: 'journeymap-api', version: '1.19.1-1.9-fabric-SNAPSHOT', changing: true
+	modImplementation "maven.modrinth:open-parties-and-claims:fabric-1.19.2-0.15.0"
+	modApi("info.journeymap:journeymap-api:1.19.1-1.9-fabric-SNAPSHOT") {changing = true}
 }
 
 loom {
