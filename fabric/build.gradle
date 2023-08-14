@@ -16,6 +16,7 @@ dependencies {
 	modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.11" // same as OPaC
 	modImplementation "maven.modrinth:open-parties-and-claims:fabric-1.19.2-0.15.0"
 	modApi("info.journeymap:journeymap-api:1.19.1-1.9-fabric-SNAPSHOT") {changing = true}
+	modRuntimeOnly "maven.modrinth:journeymap:1.19.2-5.9.7-fabric"
 }
 
 loom {
@@ -26,15 +27,11 @@ loom {
 			ideConfigGenerated(true)
 			runDir("run")
 		}
-		server {
-			server()
-			setConfigName("Fabric Server")
-			ideConfigGenerated(true)
-			runDir("run")
-		}
+
+		remove server
 	}
 }
-
+tasks.runServer.enabled = false
 
 processResources {
 	from project(":common").sourceSets.main.resources

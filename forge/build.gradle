@@ -24,13 +24,13 @@ minecraft {
 		project.logger.debug('Forge Access Transformers are enabled for this project.')
 	}
 
-/* TODO Requires journeymap whose mixins don't work here
 	runs {
 		client {
 			workingDirectory project.file('run')
 			property 'forge.logging.markers', 'REGISTRIES'
 			property 'forge.logging.console.level', 'debug'
-			property 'forge.enabledGameTestNamespaces', 'journeypac'
+			property 'mixin.env.remapRefMap', 'true'
+			property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
 
 			mods {
 				journeypac {
@@ -39,15 +39,15 @@ minecraft {
 			}
 		}
 	}
-*/
 }
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 	compileOnly project(":common")
 
-	implementation "maven.modrinth:open-parties-and-claims:forge-1.19.2-0.15.0"
+	implementation fg.deobf("maven.modrinth:open-parties-and-claims:forge-1.19.2-0.15.0")
 	compileOnly("info.journeymap:journeymap-api:1.19.1-1.9-SNAPSHOT") {changing = true}
+	runtimeOnly fg.deobf("maven.modrinth:journeymap:1.19.2-5.9.7-forge")
 }
 
 tasks.withType(JavaCompile) {

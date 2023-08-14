@@ -43,13 +43,9 @@ subprojects {
 			url = 'https://repo.spongepowered.org/repository/maven-public/'
 		}
 
-		exclusiveContent {
-			forRepository {
-				maven {
-					url = "https://api.modrinth.com/maven"
-				}
-			}
-			filter {
+		maven {
+			url = "https://api.modrinth.com/maven/"
+			content {
 				includeGroup "maven.modrinth"
 			}
 		}
