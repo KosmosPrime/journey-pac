@@ -3,6 +3,7 @@ on:
   push:
     tags:
     - '**'
+  workflow_dispatch:
 permissions:
   contents: read
 
@@ -22,8 +23,18 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - name: Execute Gradle build
         run: ./gradlew build
-      - name: Upload Results
+      - name: Upload Results (Common)
         uses: actions/upload-artifact@v3
         with:
-          name: JourneyPAC
-          path: build/libs
+          name: JourneyPAC-Common
+          path: common/build/libs
+      - name: Upload Results (GForge)
+        uses: actions/upload-artifact@v3
+        with:
+          name: JourneyPAC-Forge
+          path: forge/build/libs
+      - name: Upload Results (Fabric)
+        uses: actions/upload-artifact@v3
+        with:
+          name: JourneyPAC-Fabric
+          path: fabric/build/libs
