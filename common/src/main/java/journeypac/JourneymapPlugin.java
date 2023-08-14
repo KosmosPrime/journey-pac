@@ -200,12 +200,23 @@ public class JourneymapPlugin implements IClientPlugin
 	
 	private void onConfigReload()
 	{
-		boolean newShowClaims = config.getShowClaims();
-		if (newShowClaims != showClaims)
+		JourneyPAC.LOGGER.debug("Configs reloaded, rebuilding claim overlay");
+		showClaims = config.getShowClaims();
+		try
 		{
-			showClaims = newShowClaims;
-			if (showClaims) showClaims();
-			else hideClaims();
+			if (dimension != null)
+			{
+				JourneyPAC.LOGGER.debug("Rebuilding dimension " + dimension.location());
+				// total rebuild, make sure to remove claims
+				hideClaims();
+				claimMap.clear();
+				buildDimension(opacApi.getClaimsManager().getDimension(dimension.location()));
+				if (showClaims) showClaims();
+			}
+		}
+		catch (Exception e)
+		{
+			JourneyPAC.LOGGER.error("Error rebuilding claim overlay", e);
 		}
 	}
 	
@@ -303,7 +314,6 @@ public class JourneymapPlugin implements IClientPlugin
 						JourneyPAC.LOGGER.debug("Updating dimension " + dimension);
 						// total rebuild, make sure to remove current claims
 						hideClaims();
-						claimMap.clear();
 						buildDimension(opacApi.getClaimsManager().getDimension(dimension));
 						showClaims();
 					}
