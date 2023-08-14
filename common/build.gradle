@@ -24,6 +24,9 @@ dependencies {
 	compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
 
 	compileOnly "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
+	// this is a forge dependency (with unobfuscated class names); OPaC doesn't publish dev jars
+	compileOnly group: 'curse.maven', name: 'openpac-636608', version: '4021875', changing: true
+	compileOnly group: 'info.journeymap', name: 'journeymap-api', version: '1.19.1-1.9-SNAPSHOT', changing: true
 }
 
 processResources {

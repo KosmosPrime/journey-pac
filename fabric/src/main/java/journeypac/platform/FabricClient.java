@@ -1,6 +1,7 @@
 package journeypac.platform;
 
 import journeypac.JourneyPAC;
+import journeypac.platform.FabricEventFacade;
 import journeypac.platform.FabricKeyMapFacade;
 import journeypac.platform.JPACConfig;
 import net.fabricmc.api.ClientModInitializer;
@@ -15,7 +16,7 @@ public final class FabricClient implements ClientModInitializer
 	public FabricClient()
 	{
 		keyMap = new FabricKeyMapFacade();
-		JourneyPAC.create(JPACConfig.CONFIG, keyMap);
+		JourneyPAC.create(JPACConfig.CONFIG, keyMap, new FabricEventFacade());
 	}
 	
 	public void onInitializeClient()

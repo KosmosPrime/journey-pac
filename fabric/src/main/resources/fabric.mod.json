@@ -19,6 +19,9 @@
 	"entrypoints": {
 		"client": [
 			"journeypac.platform.FabricClient"
+		],
+		"journeymap": [
+			"journeypac.JourneymapPlugin"
 		]
 	},
 

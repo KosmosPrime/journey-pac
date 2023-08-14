@@ -5,6 +5,10 @@ subprojects {
 	java.withSourcesJar()
 	java.withJavadocJar()
 
+	configurations {
+		testCompileOnly.extendsFrom compileOnly
+	}
+
 	jar {
 		from(rootProject.file("LICENSE.md")) {
 			rename { "LICENSE_${mod_name}.md" }

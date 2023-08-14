@@ -15,14 +15,12 @@ import journeymap.client.api.IClientPlugin;
 import journeymap.client.api.display.Context;
 import journeymap.client.api.display.IThemeButton;
 import journeymap.client.api.display.PolygonOverlay;
-import journeymap.client.api.display.ThemeButtonDisplay;
 import journeymap.client.api.event.ClientEvent;
 import journeymap.client.api.event.DisplayUpdateEvent;
 import journeymap.client.api.event.FullscreenMapEvent.ClickEvent;
 import journeymap.client.api.event.FullscreenMapEvent.MouseDraggedEvent;
 import journeymap.client.api.event.FullscreenMapEvent.MouseMoveEvent;
 import journeymap.client.api.event.FullscreenMapEvent.Stage;
-import journeymap.client.api.event.forge.FullscreenDisplayEvent.AddonButtonDisplayEvent;
 import journeymap.client.api.model.MapPolygon;
 import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
@@ -36,8 +34,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.common.MinecraftForge;
 import xaero.pac.client.api.OpenPACClientAPI;
 import xaero.pac.client.claims.api.IClientDimensionClaimsManagerAPI;
 import xaero.pac.client.claims.api.IClientRegionClaimsAPI;
@@ -89,18 +85,18 @@ public class JourneymapPlugin implements IClientPlugin
 		JourneyPAC mod = JourneyPAC.getInstance();
 		config = mod.getConfig();
 		keyMap = mod.getKeyMappings();
-		MinecraftForge.EVENT_BUS.addListener(this::onMousePre);
+		// use pre event because the fullscreen map consumes all
+		mod.getEvents().onMousePre(this::onMousePre);
 		config.onConfigReload(this::onConfigReload);
 		showClaims = config.getShowClaims();
 	}
 	
-	// use pre event because the fullscreen map consumes all
-	private void onMousePre(InputEvent.MouseButton.Pre event)
+	private void onMousePre(int action, int button)
 	{
-		if (event.getAction() == InputConstants.RELEASE && areaMode != null)
+		if (action == InputConstants.RELEASE && areaMode != null)
 		{
 			var claimsManager = opacApi.getClaimsManager();
-			if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd)
+			if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd)
 			{
 				// don't cancel, this is the raw event not the JM event equivalent we canceled
 				if (areaEndX == areaStartX && areaEndZ == areaStartZ)
@@ -149,7 +145,7 @@ public class JourneymapPlugin implements IClientPlugin
 					validOverlay = null;
 				}
 			}
-			else if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)
+			else if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)
 			{
 				// don't cancel, this is the raw event not the JM event equivalent we canceled
 				if (areaEndX == areaStartX && areaEndZ == areaStartZ)
@@ -224,7 +220,10 @@ public class JourneymapPlugin implements IClientPlugin
 		jmApi.subscribe(getModId(), EnumSet.of(ClientEvent.Type.DISPLAY_UPDATE, ClientEvent.Type.MAPPING_STARTED,
 				ClientEvent.Type.MAPPING_STOPPED, ClientEvent.Type.MAP_CLICKED, ClientEvent.Type.MAP_DRAGGED,
 				ClientEvent.Type.MAP_MOUSE_MOVED));
-		MinecraftForge.EVENT_BUS.addListener(this::onAddonButtonDisplayEvent);
+		JourneyPAC.getInstance().getEvents().onAddonButtonDisplay((fs, display) ->
+		{
+			display.addThemeToggleButton("button.journeypac.toggle_claims", "opac", showClaims, this::onToggleClaims);
+		});
 		
 		opacApi = OpenPACClientAPI.get();
 		opacApi.getClaimsManager().getTracker().register(new IClaimsManagerListenerAPI()
@@ -315,12 +314,6 @@ public class JourneymapPlugin implements IClientPlugin
 				}
 			}
 		});
-	}
-	
-	private void onAddonButtonDisplayEvent(AddonButtonDisplayEvent event)
-	{
-		ThemeButtonDisplay display = event.getThemeButtonDisplay();
-		display.addThemeToggleButton("button.journeypac.toggle_claims", "opac", showClaims, this::onToggleClaims);
 	}
 	
 	private void onToggleClaims(IThemeButton btn)

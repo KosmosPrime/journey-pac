@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import journeypac.platform.ConfigFacade;
+import journeypac.platform.EventFacade;
 import journeypac.platform.KeyMapFacade;
 
 public final class JourneyPAC
@@ -14,10 +15,10 @@ public final class JourneyPAC
 	
 	private static volatile JourneyPAC instance;
 	
-	public static synchronized JourneyPAC create(ConfigFacade config, KeyMapFacade keyMap)
+	public static synchronized JourneyPAC create(ConfigFacade config, KeyMapFacade keyMap, EventFacade events)
 	{
 		if (instance != null) throw new IllegalStateException("mod already constructed");
-		JourneyPAC inst = new JourneyPAC(config, keyMap);
+		JourneyPAC inst = new JourneyPAC(config, keyMap, events);
 		instance = inst;
 		return inst;
 	}
@@ -31,13 +32,16 @@ public final class JourneyPAC
 	
 	private final ConfigFacade config;
 	private final KeyMappings keyMap;
+	private final EventFacade events;
 	
-	private JourneyPAC(ConfigFacade config, KeyMapFacade keyMap)
+	private JourneyPAC(ConfigFacade config, KeyMapFacade keyMap, EventFacade events)
 	{
 		if (config == null) throw new NullPointerException("config");
 		if (keyMap == null) throw new NullPointerException("keyMap");
+		if (events == null) throw new NullPointerException("events");
 		this.config = config;
 		this.keyMap = new KeyMappings(keyMap);
+		this.events = events;
 	}
 	
 	public ConfigFacade getConfig()
@@ -48,5 +52,10 @@ public final class JourneyPAC
 	public KeyMappings getKeyMappings()
 	{
 		return keyMap;
+	}
+	
+	public EventFacade getEvents()
+	{
+		return events;
 	}
 }
