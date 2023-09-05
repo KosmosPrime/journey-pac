@@ -5,9 +5,9 @@ import journeypac.platform.FabricEventFacade;
 import journeypac.platform.FabricKeyMapFacade;
 import journeypac.platform.JPACConfig;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraftforge.api.ModLoadingContext;
+import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.api.fml.event.config.ModConfigEvents;
+import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
 
 public final class FabricClient implements ClientModInitializer
 {
@@ -21,7 +21,7 @@ public final class FabricClient implements ClientModInitializer
 	
 	public void onInitializeClient()
 	{
-		ModLoadingContext.registerConfig(JourneyPAC.MODID, ModConfig.Type.CLIENT, JPACConfig.SPEC);
+		ForgeConfigRegistry.INSTANCE.register(JourneyPAC.MODID, ModConfig.Type.CLIENT, JPACConfig.SPEC);
 		ModConfigEvents.reloading(JourneyPAC.MODID).register(config ->
 		{
 			if (config.getSpec() == JPACConfig.SPEC) JPACConfig.CONFIG.fireConfigReload();
