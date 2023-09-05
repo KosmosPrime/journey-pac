@@ -4,7 +4,7 @@ buildscript {
 		mavenCentral()
 	}
 	dependencies {
-		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.+', changing: true
 	}
 }
 apply plugin: 'java'
@@ -45,9 +45,9 @@ dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 	compileOnly project(":common")
 
-	implementation fg.deobf("maven.modrinth:open-parties-and-claims:forge-1.19.2-0.15.0")
-	compileOnly("info.journeymap:journeymap-api:1.19.1-1.9-SNAPSHOT") {changing = true}
-	runtimeOnly fg.deobf("maven.modrinth:journeymap:1.19.2-5.9.7-forge")
+	implementation fg.deobf("maven.modrinth:open-parties-and-claims:forge-1.20.1-0.19.3")
+	compileOnly("info.journeymap:journeymap-api:1.20-1.9-SNAPSHOT") {changing = true}
+	runtimeOnly fg.deobf("maven.modrinth:journeymap:1.20.1-5.9.12-forge")
 }
 
 tasks.withType(JavaCompile) {
