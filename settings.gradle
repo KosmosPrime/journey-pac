@@ -1,21 +1,30 @@
 pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        maven {
-            name = 'Fabric'
-            url = 'https://maven.fabricmc.net/'
-        }
-        maven {
-            name = 'Sponge Snapshots'
-            url = 'https://repo.spongepowered.org/repository/maven-public/'
-        }
-    }
-    resolutionStrategy.eachPlugin {
-        // this is only required if upgrading to Gradle 8.1 is not possible
-        if (requested.id.id == "org.spongepowered.gradle.vanilla")
-            useModule("org.spongepowered:vanillagradle:0.2.1-20240507.024226-82")
-    }
+	repositories {
+		gradlePluginPortal()
+
+		mavenCentral()
+
+		maven {
+			name = "Forge"
+			url = "https://maven.minecraftforge.net"
+		}
+
+		maven {
+			name = "Fabric"
+			url = "https://maven.fabricmc.net/"
+		}
+
+		maven {
+			name = "Sponge Snapshots"
+			url = "https://repo.spongepowered.org/repository/maven-public/"
+		}
+	}
+
+	resolutionStrategy.eachPlugin {
+		if (requested.id.id == "org.spongepowered.gradle.vanilla")
+			useModule("org.spongepowered:vanillagradle:0.2.1-20240507.024226-82")
+	}
 }
 
-rootProject.name = 'JourneyPAC'
-include("common", "fabric", "forge")
+rootProject.name = "JourneyPAC"
+include("common", "forge", "fabric")
