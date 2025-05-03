@@ -5,8 +5,6 @@ import java.util.function.ObjDoubleConsumer;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 
-import journeypac.platform.ConfigInfo;
-
 public abstract class ConfigEntry<T>
 {
 	public static final class BooleanConfig extends ConfigEntry<Boolean>

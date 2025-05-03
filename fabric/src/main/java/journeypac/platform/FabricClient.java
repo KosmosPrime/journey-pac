@@ -1,8 +1,9 @@
 package journeypac.platform;
 
-import journeypac.JourneyPAC;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+
+import journeypac.JourneyPAC;
 
 public final class FabricClient implements ClientModInitializer
 {

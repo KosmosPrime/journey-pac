@@ -5,10 +5,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.mojang.blaze3d.platform.InputConstants;
-
 import journeymap.client.api.ClientPlugin;
 import journeymap.client.api.IClientAPI;
 import journeymap.client.api.IClientPlugin;
@@ -17,16 +14,11 @@ import journeymap.client.api.display.IThemeButton;
 import journeymap.client.api.display.PolygonOverlay;
 import journeymap.client.api.event.ClientEvent;
 import journeymap.client.api.event.DisplayUpdateEvent;
-import journeymap.client.api.event.FullscreenMapEvent.ClickEvent;
-import journeymap.client.api.event.FullscreenMapEvent.MouseDraggedEvent;
-import journeymap.client.api.event.FullscreenMapEvent.MouseMoveEvent;
-import journeymap.client.api.event.FullscreenMapEvent.Stage;
+import journeymap.client.api.event.FullscreenMapEvent;
 import journeymap.client.api.model.MapPolygon;
 import journeymap.client.api.model.ShapeProperties;
 import journeymap.client.api.model.TextProperties;
 import journeymap.client.api.util.UIState;
-import journeypac.KeyMappings.ClaimMode;
-import journeypac.platform.ConfigFacade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -34,11 +26,15 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import org.lwjgl.glfw.GLFW;
 import xaero.pac.client.api.OpenPACClientAPI;
 import xaero.pac.client.claims.api.IClientDimensionClaimsManagerAPI;
 import xaero.pac.client.claims.api.IClientRegionClaimsAPI;
 import xaero.pac.common.claims.player.api.IPlayerChunkClaimAPI;
 import xaero.pac.common.claims.tracker.api.IClaimsManagerListenerAPI;
+
+import journeypac.KeyMappings.ClaimMode;
+import journeypac.platform.ConfigFacade;
 
 @ClientPlugin
 public class JourneymapPlugin implements IClientPlugin
@@ -524,10 +520,10 @@ public class JourneymapPlugin implements IClientPlugin
 				}
 				case MAP_CLICKED:
 				{
-					ClickEvent clickEvent = (ClickEvent) event;
+					FullscreenMapEvent.ClickEvent clickEvent = (FullscreenMapEvent.ClickEvent) event;
 					if (dimension != null && event.dimension == dimension)
 					{
-						if (clickEvent.getStage() == Stage.PRE && areaMode == null &&
+						if (clickEvent.getStage() == FullscreenMapEvent.Stage.PRE && areaMode == null &&
 								(clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT ||
 										clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT))
 						{
@@ -548,8 +544,8 @@ public class JourneymapPlugin implements IClientPlugin
 				}
 				case MAP_DRAGGED:
 				{
-					MouseDraggedEvent dragEvent = (MouseDraggedEvent) event;
-					if (dragEvent.getStage() == Stage.PRE && areaMode != null &&
+					FullscreenMapEvent.MouseDraggedEvent dragEvent = (FullscreenMapEvent.MouseDraggedEvent) event;
+					if (dragEvent.getStage() == FullscreenMapEvent.Stage.PRE && areaMode != null &&
 							((dragEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd) ||
 									(dragEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)))
 					{
@@ -560,7 +556,7 @@ public class JourneymapPlugin implements IClientPlugin
 				}
 				case MAP_MOUSE_MOVED:
 				{
-					MouseMoveEvent moveEvent = (MouseMoveEvent) event;
+					FullscreenMapEvent.MouseMoveEvent moveEvent = (FullscreenMapEvent.MouseMoveEvent) event;
 					if (areaMode != null)
 					{
 						// create or update the claim preview

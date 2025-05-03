@@ -1,7 +1,5 @@
 package journeypac.platform;
 
-import java.util.Objects;
-
 public final class ConfigInfo<T>
 {
 	private String name;

@@ -1,7 +1,6 @@
 package journeypac.platform;
 
 import com.mojang.blaze3d.platform.InputConstants;
-
 import journeymap.client.api.event.fabric.FabricEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
