@@ -10,6 +10,11 @@ pluginManagement {
             url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
     }
+    resolutionStrategy.eachPlugin {
+        // this is only required if upgrading to Gradle 8.1 is not possible
+        if (requested.id.id == "org.spongepowered.gradle.vanilla")
+            useModule("org.spongepowered:vanillagradle:0.2.1-20240507.024226-82")
+    }
 }
 
 rootProject.name = 'JourneyPAC'

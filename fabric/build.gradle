@@ -6,6 +6,10 @@ plugins {
 
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
+configurations {
+	modRuntimeOnly.extendsFrom modRuntimeNest
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
 	mappings loom.officialMojangMappings()
@@ -13,10 +17,17 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 	implementation project(":common")
 
-	modImplementation "net.minecraftforge:forgeconfigapiport-fabric:4.2.11" // same as OPaC
+	modRuntimeNest "maven.modrinth:forge-config-api-port:4.2.11"
 	modImplementation "maven.modrinth:open-parties-and-claims:fabric-1.19.2-0.15.0"
 	modApi("info.journeymap:journeymap-api:1.19.1-1.9-fabric-SNAPSHOT") {changing = true}
 	modRuntimeOnly "maven.modrinth:journeymap:1.19.2-5.9.7-fabric"
+
+	// loom strips nested jars, this adds them back in
+	modRuntimeOnly configurations.modRuntimeNest.incoming.files.collect {
+		zipTree(it).matching {
+			include "META-INF/jars/*.jar"
+		}
+	}
 }
 
 loom {

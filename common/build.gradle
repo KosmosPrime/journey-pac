@@ -23,7 +23,6 @@ minecraft {
 dependencies {
 	compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.5'
 
-	compileOnly "net.minecraftforge:forgeconfigapiport-fabric:4.2.11"
 	// forge dependency (with unobfuscated class names) because OPaC doesn't publish dev jars
 	compileOnly "maven.modrinth:open-parties-and-claims:forge-1.19.2-0.15.0"
 	compileOnly("info.journeymap:journeymap-api:1.19.1-1.9-SNAPSHOT") {changing = true}
