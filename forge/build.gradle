@@ -6,6 +6,7 @@ archivesBaseName = "${mod_name}-forge-${minecraft_version}"
 
 minecraft {
 	mappings channel: "official", version: minecraft_version
+	reobf = false
 
 	if (project.hasProperty("forge_ats_enabled") && project.findProperty("forge_ats_enabled").toBoolean()) {
 		// This location is hardcoded in Forge and can not be changed.
@@ -33,11 +34,15 @@ minecraft {
 
 dependencies {
 	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+	implementation("net.sf.jopt-simple:jopt-simple:5.0.4") {
+		version { strictly "5.0.4" }
+	}
 	compileOnly project(":common")
 
-	implementation fg.deobf("maven.modrinth:open-parties-and-claims:forge-1.20.1-0.19.3")
-	compileOnly("info.journeymap:journeymap-api:1.20-1.9-SNAPSHOT") {changing = true}
-	runtimeOnly fg.deobf("maven.modrinth:journeymap:1.20.1-5.9.12-forge")
+	runtimeOnly "maven.modrinth:forge-config-api-port:v21.0.5-1.21-Forge"
+	implementation "maven.modrinth:open-parties-and-claims:forge-1.21-0.23.1"
+	compileOnly("info.journeymap:journeymap-api-forge:2.0.0-1.21-SNAPSHOT") {changing = true}
+	runtimeOnly "maven.modrinth:journeymap:1.21-6.0.0-beta.25+forge"
 }
 
 tasks.withType(JavaCompile) {
@@ -52,5 +57,3 @@ processResources {
 			"mod_name": project.mod_name, "mod_author": project.mod_author
 	}
 }
-
-jar.finalizedBy("reobfJar")

@@ -10,8 +10,8 @@ minecraft {
 
 dependencies {
 	// forge dependency (with unobfuscated class names) because OPaC doesn't publish dev jars
-	compileOnly "maven.modrinth:open-parties-and-claims:forge-1.19.2-0.15.0"
-	compileOnly("info.journeymap:journeymap-api:1.20-1.9-SNAPSHOT") {changing = true}
+	compileOnly "maven.modrinth:open-parties-and-claims:forge-1.21-0.23.1"
+	compileOnly("info.journeymap:journeymap-api-common:2.0.0-1.21-SNAPSHOT") {changing = true}
 }
 
 processResources {

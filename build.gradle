@@ -4,7 +4,7 @@ subprojects {
 	apply plugin: "idea"
 	apply plugin: "maven-publish"
 
-	java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+	java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 	java.withSourcesJar()
 	java.withJavadocJar()
 
@@ -65,7 +65,7 @@ subprojects {
 
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
-		options.release = 17
+		options.release = 21
 	}
 
 	// Disables Gradle's custom module metadata from being published to maven. The

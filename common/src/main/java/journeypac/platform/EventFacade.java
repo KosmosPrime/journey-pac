@@ -1,7 +1,7 @@
 package journeypac.platform;
 
-import journeymap.client.api.display.ThemeButtonDisplay;
-import journeymap.client.api.model.IFullscreen;
+import journeymap.api.v2.client.fullscreen.IFullscreen;
+import journeymap.api.v2.client.fullscreen.ThemeButtonDisplay;
 
 public interface EventFacade
 {

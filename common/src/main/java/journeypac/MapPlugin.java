@@ -6,19 +6,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import journeymap.client.api.ClientPlugin;
-import journeymap.client.api.IClientAPI;
-import journeymap.client.api.IClientPlugin;
-import journeymap.client.api.display.Context;
-import journeymap.client.api.display.IThemeButton;
-import journeymap.client.api.display.PolygonOverlay;
-import journeymap.client.api.event.ClientEvent;
-import journeymap.client.api.event.DisplayUpdateEvent;
-import journeymap.client.api.event.FullscreenMapEvent;
-import journeymap.client.api.model.MapPolygon;
-import journeymap.client.api.model.ShapeProperties;
-import journeymap.client.api.model.TextProperties;
-import journeymap.client.api.util.UIState;
+import journeymap.api.v2.client.IClientAPI;
+import journeymap.api.v2.client.IClientPlugin;
+import journeymap.api.v2.client.JourneyMapPlugin;
+import journeymap.api.v2.client.display.Context;
+import journeymap.api.v2.client.display.PolygonOverlay;
+import journeymap.api.v2.client.event.DisplayUpdateEvent;
+import journeymap.api.v2.client.event.FullscreenMapEvent;
+import journeymap.api.v2.client.event.MappingEvent;
+import journeymap.api.v2.client.fullscreen.IThemeButton;
+import journeymap.api.v2.client.model.MapPolygon;
+import journeymap.api.v2.client.model.ShapeProperties;
+import journeymap.api.v2.client.model.TextProperties;
+import journeymap.api.v2.client.util.UIState;
+import journeymap.api.v2.common.event.ClientEventRegistry;
+import journeymap.api.v2.common.event.FullscreenEventRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -36,8 +38,8 @@ import xaero.pac.common.claims.tracker.api.IClaimsManagerListenerAPI;
 import journeypac.KeyMappings.ClaimMode;
 import journeypac.platform.ConfigFacade;
 
-@ClientPlugin
-public class JourneymapPlugin implements IClientPlugin
+@JourneyMapPlugin(apiVersion = IClientAPI.API_VERSION)
+public class MapPlugin implements IClientPlugin
 {
 	public static final int REGION_BITS = 5;
 	public static final int REGION_SIZE = 1 << REGION_BITS;
@@ -76,7 +78,7 @@ public class JourneymapPlugin implements IClientPlugin
 	private int validCenterZ;
 	private int validRange;
 	
-	public JourneymapPlugin()
+	public MapPlugin()
 	{
 		JourneyPAC mod = JourneyPAC.getInstance();
 		config = mod.getConfig();
@@ -224,12 +226,16 @@ public class JourneymapPlugin implements IClientPlugin
 	public void initialize(IClientAPI jmApi)
 	{
 		this.jmApi = jmApi;
-		jmApi.subscribe(getModId(), EnumSet.of(ClientEvent.Type.DISPLAY_UPDATE, ClientEvent.Type.MAPPING_STARTED,
-				ClientEvent.Type.MAPPING_STOPPED, ClientEvent.Type.MAP_CLICKED, ClientEvent.Type.MAP_DRAGGED,
-				ClientEvent.Type.MAP_MOUSE_MOVED));
+		ClientEventRegistry.DISPLAY_UPDATE_EVENT.subscribe(getModId(), this::onDisplayUpdate);
+		ClientEventRegistry.MAPPING_EVENT.subscribe(getModId(), this::onMappingStarted);
+		FullscreenEventRegistry.FULLSCREEN_MAP_CLICK_EVENT.subscribe(getModId(), this::onMapClick);
+		FullscreenEventRegistry.FULLSCREEN_MAP_DRAG_EVENT.subscribe(getModId(), this::onMapMouseDragged);
+		FullscreenEventRegistry.FULLSCREEN_MAP_MOVE_EVENT.subscribe(getModId(), this::onMapMouseMove);
 		JourneyPAC.getInstance().getEvents().onAddonButtonDisplay((fs, display) ->
 		{
-			display.addThemeToggleButton("button.journeypac.toggle_claims", "opac", showClaims, this::onToggleClaims);
+			display.addThemeToggleButton("button.journeypac.toggle_claims",
+					ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, "textures/gui/opac_btn.png"),
+					showClaims, this::onToggleClaims);
 		});
 		
 		opacApi = OpenPACClientAPI.get();
@@ -239,7 +245,7 @@ public class JourneymapPlugin implements IClientPlugin
 			{
 				try
 				{
-					ResourceKey<Level> curr = JourneymapPlugin.this.dimension;
+					ResourceKey<Level> curr = MapPlugin.this.dimension;
 					if (curr != null && curr.location().equals(dimension))
 					{
 						JourneyPAC.LOGGER.debug("Updating chunk " + chunkX + " " + chunkZ + " in " + dimension);
@@ -286,7 +292,7 @@ public class JourneymapPlugin implements IClientPlugin
 			{
 				try
 				{
-					ResourceKey<Level> curr = JourneymapPlugin.this.dimension;
+					ResourceKey<Level> curr = MapPlugin.this.dimension;
 					if (curr != null && curr.location().equals(dimension))
 					{
 						JourneyPAC.LOGGER.debug("Updating region " + regionX + " " + regionZ + " in " + dimension);
@@ -304,7 +310,7 @@ public class JourneymapPlugin implements IClientPlugin
 			{
 				try
 				{
-					ResourceKey<Level> curr = JourneymapPlugin.this.dimension;
+					ResourceKey<Level> curr = MapPlugin.this.dimension;
 					if (curr != null && curr.location().equals(dimension))
 					{
 						JourneyPAC.LOGGER.debug("Updating dimension " + dimension);
@@ -341,7 +347,7 @@ public class JourneymapPlugin implements IClientPlugin
 		}
 	}
 	
-	private void buildDimension(IClientDimensionClaimsManagerAPI<?> dimClaims)
+	private void buildDimension(IClientDimensionClaimsManagerAPI dimClaims)
 	{
 		claimMap.clear();
 		if (dimClaims != null && dimClaims.getCount() > 0)
@@ -421,7 +427,7 @@ public class JourneymapPlugin implements IClientPlugin
 		int x0 = chunkX << 4, z0 = chunkZ << 4, x1 = x0 + 16, z1 = z0 + 16;
 		MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
 				new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
-		PolygonOverlay overlay = new PolygonOverlay(getModId(), "claim_" + chunkX + "_" + chunkZ, dimension, shape, area);
+		PolygonOverlay overlay = new PolygonOverlay(getModId(), dimension, shape, area);
 		if (trueName != null)
 		{
 			overlay.setTitle(trueName);
@@ -465,26 +471,33 @@ public class JourneymapPlugin implements IClientPlugin
 		}
 	}
 	
-	public void onEvent(ClientEvent event)
+	private void onDisplayUpdate(DisplayUpdateEvent event)
 	{
 		try
 		{
-			switch (event.type)
+			UIState display = event.uiState;
+			if (display.ui == Context.UI.Fullscreen && !display.active)
 			{
-				case DISPLAY_UPDATE:
+				areaMode = null;
+				if (areaOverlay != null)
 				{
-					UIState display = ((DisplayUpdateEvent) event).uiState;
-					if (display.ui == Context.UI.Fullscreen && !display.active)
-					{
-						areaMode = null;
-						if (areaOverlay != null)
-						{
-							jmApi.remove(areaOverlay);
-							areaOverlay = null;
-						}
-					}
-					break;
+					jmApi.remove(areaOverlay);
+					areaOverlay = null;
 				}
+			}
+		}
+		catch (Exception e)
+		{
+			JourneyPAC.LOGGER.error("Error handling event (" + event.getClass().getSimpleName() + ")", e);
+		}
+	}
+	
+	private void onMappingStarted(MappingEvent event)
+	{
+		try
+		{
+			switch (event.getStage())
+			{
 				case MAPPING_STARTED:
 				{
 					if (dimension != null)
@@ -518,121 +531,135 @@ public class JourneymapPlugin implements IClientPlugin
 					dimension = null;
 					break;
 				}
-				case MAP_CLICKED:
-				{
-					FullscreenMapEvent.ClickEvent clickEvent = (FullscreenMapEvent.ClickEvent) event;
-					if (dimension != null && event.dimension == dimension)
-					{
-						if (clickEvent.getStage() == FullscreenMapEvent.Stage.PRE && areaMode == null &&
-								(clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT ||
-										clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT))
-						{
-							ClaimMode mode = keyMap.getClaimMode();
-							if (mode != ClaimMode.NONE)
-							{
-								clickEvent.cancel();
-								areaMode = mode;
-								areaAdd = clickEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT;
-								areaStartX = SectionPos.blockToSectionCoord(clickEvent.getLocation().getX());
-								areaStartZ = SectionPos.blockToSectionCoord(clickEvent.getLocation().getZ());
-								areaEndX = areaStartX;
-								areaEndZ = areaStartZ;
-							}
-						}
-					}
-					break;
-				}
-				case MAP_DRAGGED:
-				{
-					FullscreenMapEvent.MouseDraggedEvent dragEvent = (FullscreenMapEvent.MouseDraggedEvent) event;
-					if (dragEvent.getStage() == FullscreenMapEvent.Stage.PRE && areaMode != null &&
-							((dragEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd) ||
-									(dragEvent.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)))
-					{
-						// cancel dragging events (which keep appearing) while we're area-claiming
-						dragEvent.cancel();
-					}
-					break;
-				}
-				case MAP_MOUSE_MOVED:
-				{
-					FullscreenMapEvent.MouseMoveEvent moveEvent = (FullscreenMapEvent.MouseMoveEvent) event;
-					if (areaMode != null)
-					{
-						// create or update the claim preview
-						int currX = SectionPos.blockToSectionCoord(moveEvent.getLocation().getX());
-						int currZ = SectionPos.blockToSectionCoord(moveEvent.getLocation().getZ());
-						if (areaOverlay == null || currX != areaEndX || currZ != areaEndZ)
-						{
-							areaEndX = currX;
-							areaEndZ = currZ;
-							int x0 = SectionPos.sectionToBlockCoord(Math.min(currX, areaStartX));
-							int z0 = SectionPos.sectionToBlockCoord(Math.min(currZ, areaStartZ));
-							int x1 = SectionPos.sectionToBlockCoord(Math.max(currX, areaStartX) + 1);
-							int z1 = SectionPos.sectionToBlockCoord(Math.max(currZ, areaStartZ) + 1);
-							MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
-									new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
-							if (areaOverlay == null)
-							{
-								ShapeProperties shape = new ShapeProperties()
-										.setStrokeColor(0xFFFFFF).setFillColor(0xFFFFFF)
-										.setFillOpacity((float) config.getClaimOpacity());
-								areaOverlay = new PolygonOverlay(getModId(), "claim_area", dimension, shape, area);
-							}
-							else
-							{
-								areaOverlay.setOuterArea(area);
-								areaOverlay.flagForRerender();
-							}
-							jmApi.show(areaOverlay);
-						}
-						
-						float validOpacity = (float) config.getValidAreaOpacity();
-						if (validOpacity > 0)
-						{
-							// only update on mouse move, you normally won't move while in the fullscreen map
-							Minecraft mc = Minecraft.getInstance();
-							if (mc.player != null)
-							{
-								ChunkPos chunk = mc.player.chunkPosition();
-								int chunkX = chunk.x, chunkZ = chunk.z;
-								int range = opacApi.getClaimsManager().getMaxClaimDistance();
-								if (validOverlay == null || (chunkX != validCenterX) || (chunkZ != validCenterZ) || (range != validRange))
-								{
-									// extend by 1 block to avoid drawing in the same place as the claim rectangle
-									int x0 = SectionPos.sectionToBlockCoord(chunkX - range) - 1;
-									int z0 = SectionPos.sectionToBlockCoord(chunkZ - range) - 1;
-									int x1 = SectionPos.sectionToBlockCoord(chunkX + range + 1) + 1;
-									int z1 = SectionPos.sectionToBlockCoord(chunkZ + range + 1) + 1;
-									MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
-											new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
-									if (validOverlay == null)
-									{
-										ShapeProperties shape = new ShapeProperties().setStrokeColor(0xBFBFBF)
-												.setStrokeOpacity(validOpacity).setFillOpacity(0).setStrokeWidth(2);
-										validOverlay = new PolygonOverlay(getModId(), "valid_claim_area", dimension, shape, area);
-									}
-									else
-									{
-										validOverlay.setOuterArea(area);
-										validOverlay.flagForRerender();
-									}
-									jmApi.show(validOverlay);
-								}
-							}
-						}
-					}
-					break;
-				}
-				default:
-					// because we subscribe to events, don't get any otherwise
-					JourneyPAC.LOGGER.warn("Unhandled event " + event.type);
-					break;
 			}
 		}
 		catch (Exception e)
 		{
-			JourneyPAC.LOGGER.error("Error handling event (" + event.type + ")", e);
+			JourneyPAC.LOGGER.error("Error handling event (" + event.getClass().getSimpleName() + ")", e);
+		}
+	}
+	
+	private void onMapClick(FullscreenMapEvent.ClickEvent event)
+	{
+		try
+		{
+			if (dimension != null && event.dimension == dimension)
+			{
+				if (event.getStage() == FullscreenMapEvent.Stage.PRE && areaMode == null &&
+						(event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT ||
+								event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT))
+				{
+					ClaimMode mode = keyMap.getClaimMode();
+					if (mode != ClaimMode.NONE)
+					{
+						event.cancel();
+						areaMode = mode;
+						areaAdd = event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT;
+						areaStartX = SectionPos.blockToSectionCoord(event.getLocation().getX());
+						areaStartZ = SectionPos.blockToSectionCoord(event.getLocation().getZ());
+						areaEndX = areaStartX;
+						areaEndZ = areaStartZ;
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			JourneyPAC.LOGGER.error("Error handling event (" + event.getClass().getSimpleName() + ")", e);
+		}
+	}
+	
+	private void onMapMouseDragged(FullscreenMapEvent.MouseDraggedEvent event)
+	{
+		try
+		{
+			if (event.getStage() == FullscreenMapEvent.Stage.PRE && areaMode != null &&
+					((event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT && areaAdd) ||
+							(event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT && !areaAdd)))
+			{
+				// cancel dragging events (which keep appearing) while we're area-claiming
+				event.cancel();
+			}
+		}
+		catch (Exception e)
+		{
+			JourneyPAC.LOGGER.error("Error handling event (" + event.getClass().getSimpleName() + ")", e);
+		}
+	}
+	
+	private void onMapMouseMove(FullscreenMapEvent.MouseMoveEvent event)
+	{
+		try
+		{
+			if (areaMode != null)
+			{
+				// create or update the claim preview
+				int currX = SectionPos.blockToSectionCoord(event.getLocation().getX());
+				int currZ = SectionPos.blockToSectionCoord(event.getLocation().getZ());
+				if (areaOverlay == null || currX != areaEndX || currZ != areaEndZ)
+				{
+					areaEndX = currX;
+					areaEndZ = currZ;
+					int x0 = SectionPos.sectionToBlockCoord(Math.min(currX, areaStartX));
+					int z0 = SectionPos.sectionToBlockCoord(Math.min(currZ, areaStartZ));
+					int x1 = SectionPos.sectionToBlockCoord(Math.max(currX, areaStartX) + 1);
+					int z1 = SectionPos.sectionToBlockCoord(Math.max(currZ, areaStartZ) + 1);
+					MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
+							new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
+					if (areaOverlay == null)
+					{
+						ShapeProperties shape = new ShapeProperties()
+								.setStrokeColor(0xFFFFFF).setFillColor(0xFFFFFF)
+								.setFillOpacity((float) config.getClaimOpacity());
+						areaOverlay = new PolygonOverlay(getModId(), dimension, shape, area);
+					}
+					else
+					{
+						areaOverlay.setOuterArea(area);
+						areaOverlay.flagForRerender();
+					}
+					jmApi.show(areaOverlay);
+				}
+				
+				float validOpacity = (float) config.getValidAreaOpacity();
+				if (validOpacity > 0)
+				{
+					// only update on mouse move, you normally won't move while in the fullscreen map
+					Minecraft mc = Minecraft.getInstance();
+					if (mc.player != null)
+					{
+						ChunkPos chunk = mc.player.chunkPosition();
+						int chunkX = chunk.x, chunkZ = chunk.z;
+						int range = opacApi.getClaimsManager().getMaxClaimDistance();
+						if (validOverlay == null || (chunkX != validCenterX) || (chunkZ != validCenterZ) || (range != validRange))
+						{
+							// extend by 1 block to avoid drawing in the same place as the claim rectangle
+							int x0 = SectionPos.sectionToBlockCoord(chunkX - range) - 1;
+							int z0 = SectionPos.sectionToBlockCoord(chunkZ - range) - 1;
+							int x1 = SectionPos.sectionToBlockCoord(chunkX + range + 1) + 1;
+							int z1 = SectionPos.sectionToBlockCoord(chunkZ + range + 1) + 1;
+							MapPolygon area = new MapPolygon(new BlockPos(x0, 0, z1), new BlockPos(x1, 0, z1),
+									new BlockPos(x1, 0, z0), new BlockPos(x0, 0, z0));
+							if (validOverlay == null)
+							{
+								ShapeProperties shape = new ShapeProperties().setStrokeColor(0xBFBFBF)
+										.setStrokeOpacity(validOpacity).setFillOpacity(0).setStrokeWidth(2);
+								validOverlay = new PolygonOverlay(getModId(), dimension, shape, area);
+							}
+							else
+							{
+								validOverlay.setOuterArea(area);
+								validOverlay.flagForRerender();
+							}
+							jmApi.show(validOverlay);
+						}
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			JourneyPAC.LOGGER.error("Error handling event (" + event.getClass().getSimpleName() + ")", e);
 		}
 	}
 }

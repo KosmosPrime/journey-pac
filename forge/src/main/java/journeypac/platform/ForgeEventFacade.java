@@ -2,9 +2,11 @@ package journeypac.platform;
 
 import java.util.function.Consumer;
 
-import journeymap.client.api.event.forge.FullscreenDisplayEvent.AddonButtonDisplayEvent;
+import journeymap.api.v2.common.event.FullscreenEventRegistry;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.common.MinecraftForge;
+
+import journeypac.JourneyPAC;
 
 public final class ForgeEventFacade implements EventFacade
 {
@@ -16,8 +18,7 @@ public final class ForgeEventFacade implements EventFacade
 	
 	public void onAddonButtonDisplay(OnAddonButtonDisplay func)
 	{
-		Consumer<AddonButtonDisplayEvent> wrapper =
-			event -> func.onAddonButtonDisplay(event.getFullscreen(), event.getThemeButtonDisplay());
-		MinecraftForge.EVENT_BUS.addListener(wrapper);
+		FullscreenEventRegistry.ADDON_BUTTON_DISPLAY_EVENT.subscribe(JourneyPAC.MODID,
+			event -> func.onAddonButtonDisplay(event.getFullscreen(), event.getThemeButtonDisplay()));
 	}
 }

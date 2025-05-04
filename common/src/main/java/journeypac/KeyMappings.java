@@ -11,8 +11,8 @@ public class KeyMappings
 {
 	private static KeyMapping createGui(KeyMapFacade keyMap, String category, String description, int keyCode)
 	{
-		category = Util.makeDescriptionId("key", new ResourceLocation(JourneyPAC.MODID, category));
-		description = Util.makeDescriptionId("key", new ResourceLocation(JourneyPAC.MODID, description));
+		category = Util.makeDescriptionId("key", ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, category));
+		description = Util.makeDescriptionId("key", ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, description));
 		return keyMap.createGui(category, description, keyCode);
 	}
 	
