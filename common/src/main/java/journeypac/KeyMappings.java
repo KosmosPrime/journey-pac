@@ -1,11 +1,11 @@
 package journeypac;
 
-import org.lwjgl.glfw.GLFW;
-
-import journeypac.platform.KeyMapFacade;
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.glfw.GLFW;
+
+import journeypac.platform.KeyMapFacade;
 
 public class KeyMappings
 {

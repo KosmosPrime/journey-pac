@@ -1,36 +1,26 @@
-buildscript {
-	repositories {
-		maven { url = 'https://maven.minecraftforge.net' }
-		mavenCentral()
-	}
-	dependencies {
-		classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.+', changing: true
-	}
+plugins {
+	id "net.minecraftforge.gradle" version "6.+"
 }
-apply plugin: 'java'
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'maven-publish'
 
 archivesBaseName = "${mod_name}-forge-${minecraft_version}"
 
 minecraft {
-	mappings channel: 'official', version: minecraft_version
-	
-	if (project.hasProperty('forge_ats_enabled') && project.findProperty('forge_ats_enabled').toBoolean()) {
+	mappings channel: "official", version: minecraft_version
+
+	if (project.hasProperty("forge_ats_enabled") && project.findProperty("forge_ats_enabled").toBoolean()) {
 		// This location is hardcoded in Forge and can not be changed.
 		// https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
-		accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-		project.logger.debug('Forge Access Transformers are enabled for this project.')
+		accessTransformer = file("src/main/resources/META-INF/accesstransformer.cfg")
+		project.logger.debug("Forge Access Transformers are enabled for this project.")
 	}
 
 	runs {
 		client {
-			workingDirectory project.file('run')
-			property 'forge.logging.markers', 'REGISTRIES'
-			property 'forge.logging.console.level', 'debug'
-			property 'mixin.env.remapRefMap', 'true'
-			property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+			workingDirectory project.file("run")
+			property "forge.logging.markers", "REGISTRIES"
+			property "forge.logging.console.level", "debug"
+			property "mixin.env.remapRefMap", "true"
+			property "mixin.env.refMapRemappingFile", "${buildDir}/createSrgToMcp/output.srg"
 
 			mods {
 				journeypac {
@@ -63,4 +53,4 @@ processResources {
 	}
 }
 
-jar.finalizedBy('reobfJar')
+jar.finalizedBy("reobfJar")

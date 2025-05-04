@@ -1,8 +1,7 @@
 package journeypac;
 
-import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
 
 import journeypac.platform.ConfigFacade;
 import journeypac.platform.EventFacade;

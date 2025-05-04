@@ -1,32 +1,25 @@
 package journeypac.platform;
 
-import journeypac.JourneyPAC;
-import journeypac.platform.FabricEventFacade;
-import journeypac.platform.FabricKeyMapFacade;
-import journeypac.platform.JPACConfig;
 import net.fabricmc.api.ClientModInitializer;
-import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
-import net.minecraftforge.fml.config.ModConfig;
-import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
+import net.fabricmc.loader.api.FabricLoader;
+
+import journeypac.JourneyPAC;
 
 public final class FabricClient implements ClientModInitializer
 {
+	private FabricConfig config;
 	private FabricKeyMapFacade keyMap;
 	
 	public FabricClient()
 	{
+		config = new FabricConfig(FabricLoader.getInstance().getConfigDir());
 		keyMap = new FabricKeyMapFacade();
-		JourneyPAC.create(JPACConfig.CONFIG, keyMap, new FabricEventFacade());
+		JourneyPAC.create(config, keyMap, new FabricEventFacade());
 	}
 	
 	public void onInitializeClient()
 	{
-		ForgeConfigRegistry.INSTANCE.register(JourneyPAC.MODID, ModConfig.Type.CLIENT, JPACConfig.SPEC);
-		ModConfigEvents.reloading(JourneyPAC.MODID).register(config ->
-		{
-			if (config.getSpec() == JPACConfig.SPEC) JPACConfig.CONFIG.fireConfigReload();
-		});
-		
+		config.load(true);
 		keyMap.onInit();
 		keyMap.onRegister();
 	}

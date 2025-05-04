@@ -1,10 +1,12 @@
 plugins {
-	id 'fabric-loom' version '1.2-SNAPSHOT'
-	id 'maven-publish'
-	id 'idea'
+	id "fabric-loom" version "1.2-SNAPSHOT"
 }
 
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
+
+configurations {
+	modRuntimeOnly.extendsFrom modRuntimeNest
+}
 
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
@@ -13,10 +15,17 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 	implementation project(":common")
 
-	modImplementation "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:8.0.0" // same as OPaC
+	modRuntimeNest "maven.modrinth:forge-config-api-port:v8.0.0-1.20.1-Fabric"
 	modImplementation "maven.modrinth:open-parties-and-claims:fabric-1.20.1-0.19.3"
 	modApi("info.journeymap:journeymap-api:1.20-1.9-fabric-SNAPSHOT") {changing = true}
 	modRuntimeOnly "maven.modrinth:journeymap:1.20.1-5.9.12-fabric"
+
+	// loom strips nested jars, this adds them back in
+	modRuntimeOnly configurations.modRuntimeNest.incoming.files.collect {
+		zipTree(it).matching {
+			include "META-INF/jars/*.jar"
+		}
+	}
 }
 
 loom {
