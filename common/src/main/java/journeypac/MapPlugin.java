@@ -231,9 +231,9 @@ public class MapPlugin implements IClientPlugin
 		FullscreenEventRegistry.FULLSCREEN_MAP_CLICK_EVENT.subscribe(getModId(), this::onMapClick);
 		FullscreenEventRegistry.FULLSCREEN_MAP_DRAG_EVENT.subscribe(getModId(), this::onMapMouseDragged);
 		FullscreenEventRegistry.FULLSCREEN_MAP_MOVE_EVENT.subscribe(getModId(), this::onMapMouseMove);
-		JourneyPAC.getInstance().getEvents().onAddonButtonDisplay((fs, display) ->
+		FullscreenEventRegistry.ADDON_BUTTON_DISPLAY_EVENT.subscribe(getModId(), event ->
 		{
-			display.addThemeToggleButton("button.journeypac.toggle_claims",
+			event.getThemeButtonDisplay().addThemeToggleButton("button.journeypac.toggle_claims",
 					ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, "textures/gui/opac_btn.png"),
 					showClaims, this::onToggleClaims);
 		});
