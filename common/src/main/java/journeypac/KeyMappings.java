@@ -21,8 +21,8 @@ public class KeyMappings
 	
 	public KeyMappings(KeyMapFacade keyMap)
 	{
-		claimMode = createGui(keyMap, "category", "claim_mode", GLFW.GLFW_KEY_TAB);
-		forceloadMode = createGui(keyMap, "category", "forceload_mode", GLFW.GLFW_KEY_Q);
+		claimMode = createGui(keyMap, "category", "claim_mode", GLFW.GLFW_KEY_U);
+		forceloadMode = createGui(keyMap, "category", "forceload_mode", GLFW.GLFW_KEY_I);
 	}
 	
 	public static enum ClaimMode
