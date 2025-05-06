@@ -33,6 +33,11 @@ jobs:
         with:
           name: JourneyPAC-Forge
           path: forge/build/libs
+      - name: Upload Results (NeoForge)
+        uses: actions/upload-artifact@v4
+        with:
+          name: JourneyPAC-NeoForge
+          path: neoforge/build/libs
       - name: Upload Results (Fabric)
         uses: actions/upload-artifact@v4
         with:
