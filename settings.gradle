@@ -10,6 +10,11 @@ pluginManagement {
 		}
 
 		maven {
+			name = "NeoForged"
+			url = "https://maven.neoforged.net/releases"
+		}
+
+		maven {
 			name = "Fabric"
 			url = "https://maven.fabricmc.net/"
 		}
@@ -27,4 +32,4 @@ pluginManagement {
 }
 
 rootProject.name = "JourneyPAC"
-include("common", "forge", "fabric")
+include("common", "forge", "neoforge", "fabric")
