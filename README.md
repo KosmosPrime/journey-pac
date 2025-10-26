@@ -4,6 +4,6 @@ Inspired by [JourneyMap Integration](https://modrinth.com/mod/journeymap-integra
 Releases are available on [Modrinth](https://modrinth.com/mod/journey-pac) and [CurseForge](https://www.curseforge.com/minecraft/mc-mods/journeypac).
 
 Dependencies:
-- [JourneyMap](https://modrinth.com/mod/journeymap) version 5.9 or higher
-- [Open Parties and Claims](https://modrinth.com/mod/open-parties-and-claims) version 0.15 or higher
-- (Fabric) [Forge Config API Port](https://modrinth.com/mod/forge-config-api-port/)
+- [JourneyMap](https://modrinth.com/mod/journeymap)
+- [Open Parties and Claims](https://modrinth.com/mod/open-parties-and-claims)
+- (Before 1.1.7, Fabric) [Forge Config API Port](https://modrinth.com/mod/forge-config-api-port)
