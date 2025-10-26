@@ -14,7 +14,7 @@ Journeymap integration for Open Parties and Claims (by Xaero).
 [[dependencies.journeypac]]
 	modId="neoforge"
 	type="required"
-	versionRange="[21.8,)"
+	versionRange="[21.9,)"
 	ordering="NONE"
 	side="CLIENT"
 

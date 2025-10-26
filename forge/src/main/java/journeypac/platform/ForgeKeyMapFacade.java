@@ -10,13 +10,12 @@ import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public final class ForgeKeyMapFacade implements KeyMapFacade
 {
-	public ForgeKeyMapFacade(FMLJavaModLoadingContext context)
+	public ForgeKeyMapFacade()
 	{
-		RegisterKeyMappingsEvent.getBus(context.getModBusGroup()).addListener(this::onRegister);
+		RegisterKeyMappingsEvent.BUS.addListener(this::onRegister);
 		
 		// manually check keybinds because the fullscreen map doesn't pass events
 		ScreenEvent.KeyPressed.Post.BUS.addListener(this::onKeyPressed);
@@ -27,7 +26,7 @@ public final class ForgeKeyMapFacade implements KeyMapFacade
 	
 	private final List<KeyMapping> guiMappings = new ArrayList<>();
 	
-	public KeyMapping createGui(String category, String description, int keyCode)
+	public KeyMapping createGui(KeyMapping.Category category, String description, int keyCode)
 	{
 		InputConstants.Key key = InputConstants.Type.KEYSYM.getOrCreate(keyCode);
 		KeyMapping mapping = new KeyMapping(description, KeyConflictContext.GUI, KeyModifier.NONE, key, category);

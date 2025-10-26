@@ -9,12 +9,14 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public final class FabricKeyMapFacade implements KeyMapFacade
 {
 	private final List<KeyMapping> guiMappings = new ArrayList<>();
 	
-	public KeyMapping createGui(String category, String description, int keyCode)
+	public KeyMapping createGui(KeyMapping.Category category, String description, int keyCode)
 	{
 		KeyMapping mapping = new KeyMapping(description, keyCode, category);
 		guiMappings.add(mapping);
@@ -39,35 +41,45 @@ public final class FabricKeyMapFacade implements KeyMapFacade
 	}
 	
 	// for handling fabric events
-	private final void onKeyPressed(Screen screen, int keyCode, int scanCode, int mods)
+	private final void onKeyPressed(Screen screen, KeyEvent event)
 	{
 		for (KeyMapping curr : guiMappings)
 		{
-			if (curr.matches(keyCode, scanCode)) curr.setDown(true);
+			if (curr.matches(event)) curr.setDown(true);
 		}
 	}
 	
-	private final void onKeyReleased(Screen screen, int keyCode, int scanCode, int mods)
+	private final void onKeyReleased(Screen screen, KeyEvent event)
 	{
 		for (KeyMapping curr : guiMappings)
 		{
-			if (curr.matches(keyCode, scanCode)) curr.setDown(false);
+			if (curr.matches(event)) curr.setDown(false);
 		}
 	}
 	
-	private final void onMousePressed(Screen screen, double mouseX, double mouseY, int button)
+	private final boolean onMousePressed(Screen screen, MouseButtonEvent event, boolean consumed)
 	{
 		for (KeyMapping curr : guiMappings)
 		{
-			if (curr.matchesMouse(button)) curr.setDown(true);
+			if (curr.matchesMouse(event))
+			{
+				curr.setDown(true);
+				return true;
+			}
 		}
+		return false;
 	}
 	
-	private final void onMouseReleased(Screen screen, double mouseX, double mouseY, int button)
+	private final boolean onMouseReleased(Screen screen, MouseButtonEvent event, boolean consumed)
 	{
 		for (KeyMapping curr : guiMappings)
 		{
-			if (curr.matchesMouse(button)) curr.setDown(false);
+			if (curr.matchesMouse(event))
+			{
+				curr.setDown(false);
+				return true;
+			}
 		}
+		return false;
 	}
 }

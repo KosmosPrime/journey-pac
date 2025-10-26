@@ -9,9 +9,10 @@ import journeypac.platform.KeyMapFacade;
 
 public class KeyMappings
 {
-	private static KeyMapping createGui(KeyMapFacade keyMap, String category, String description, int keyCode)
+	private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, "category"));
+	
+	private static KeyMapping createGui(KeyMapFacade keyMap, KeyMapping.Category category, String description, int keyCode)
 	{
-		category = Util.makeDescriptionId("key", ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, category));
 		description = Util.makeDescriptionId("key", ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, description));
 		return keyMap.createGui(category, description, keyCode);
 	}
@@ -21,8 +22,8 @@ public class KeyMappings
 	
 	public KeyMappings(KeyMapFacade keyMap)
 	{
-		claimMode = createGui(keyMap, "category", "claim_mode", GLFW.GLFW_KEY_U);
-		forceloadMode = createGui(keyMap, "category", "forceload_mode", GLFW.GLFW_KEY_I);
+		claimMode = createGui(keyMap, KEY_CATEGORY, "claim_mode", GLFW.GLFW_KEY_U);
+		forceloadMode = createGui(keyMap, KEY_CATEGORY, "forceload_mode", GLFW.GLFW_KEY_I);
 	}
 	
 	public static enum ClaimMode

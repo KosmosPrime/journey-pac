@@ -2,7 +2,9 @@ plugins {
 	id "net.neoforged.moddev" version "2.0.115"
 }
 
-archivesBaseName = "${mod_name}-neoforge-${minecraft_version}"
+base {
+	archivesName = "${mod_name}-neoforge-${minecraft_version}"
+}
 
 configurations {
 	runtimeClasspath.extendsFrom localRuntime
@@ -29,10 +31,10 @@ neoForge {
 dependencies {
 	compileOnly project(":common")
 
-	runtimeOnly "maven.modrinth:forge-config-api-port:v21.8.0-1.21.8-NeoForge"
-	implementation "maven.modrinth:open-parties-and-claims:neoforge-1.21.8-0.25.8"
-	compileOnly("info.journeymap:journeymap-api-neoforge:2.0.0-1.21.7-SNAPSHOT") {changing = true}
-	runtimeOnly "maven.modrinth:journeymap:1.21.8-6.0.0-beta.52+neoforge"
+	runtimeOnly "maven.modrinth:forge-config-api-port:21.9.7"
+	implementation "maven.modrinth:open-parties-and-claims:neoforge-1.21.9-0.25.6"
+	compileOnly("info.journeymap:journeymap-api-neoforge:2.0.0-1.21.9-SNAPSHOT") {changing = true}
+	runtimeOnly "maven.modrinth:journeymap:1.21.9-6.0.0-beta.53+neoforge"
 }
 
 processResources {

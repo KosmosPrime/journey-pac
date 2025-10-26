@@ -10,10 +10,10 @@ public final class FabricEventFacade implements EventFacade
 	{
 		ScreenEvents.AFTER_INIT.register((client, screen, width, height) ->
 		{
-			ScreenMouseEvents.beforeMouseClick(screen).register((s, x, y, button) ->
-				func.onMousePre(InputConstants.PRESS, button));
-			ScreenMouseEvents.beforeMouseRelease(screen).register((s, x, y, button) ->
-				func.onMousePre(InputConstants.RELEASE, button));
+			ScreenMouseEvents.beforeMouseClick(screen).register((s, e) ->
+				func.onMousePre(InputConstants.PRESS, e.button()));
+			ScreenMouseEvents.beforeMouseRelease(screen).register((s, e) ->
+				func.onMousePre(InputConstants.RELEASE, e.button()));
 		});
 	}
 }

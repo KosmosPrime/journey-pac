@@ -29,7 +29,7 @@ public final class NeoForgeKeyMapFacade implements KeyMapFacade
 	
 	private final List<KeyMapping> guiMappings = new ArrayList<>();
 	
-	public KeyMapping createGui(String category, String description, int keyCode)
+	public KeyMapping createGui(KeyMapping.Category category, String description, int keyCode)
 	{
 		InputConstants.Key key = InputConstants.Type.KEYSYM.getOrCreate(keyCode);
 		KeyMapping mapping = new KeyMapping(description, KeyConflictContext.GUI, KeyModifier.NONE, key, category);

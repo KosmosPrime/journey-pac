@@ -13,7 +13,7 @@ public final class ForgeMain
 {
 	public ForgeMain(FMLJavaModLoadingContext context)
 	{
-		JourneyPAC.create(ForgeConfig.CONFIG, new ForgeKeyMapFacade(context), new ForgeEventFacade());
+		JourneyPAC.create(ForgeConfig.CONFIG, new ForgeKeyMapFacade(), new ForgeEventFacade());
 		context.registerConfig(ModConfig.Type.CLIENT, ForgeConfig.SPEC);
 		ModConfigEvent.Reloading.getBus(context.getModBusGroup()).addListener(this::onConfigReload);
 	}
