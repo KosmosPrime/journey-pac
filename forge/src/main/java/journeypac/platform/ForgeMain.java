@@ -11,11 +11,11 @@ import journeypac.JourneyPAC;
 @Mod(JourneyPAC.MODID)
 public final class ForgeMain
 {
-	public ForgeMain()
+	public ForgeMain(FMLJavaModLoadingContext context)
 	{
-		JourneyPAC.create(ForgeConfig.CONFIG, new ForgeKeyMapFacade(), new ForgeEventFacade());
-		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ForgeConfig.SPEC);
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onConfigReload);
+		JourneyPAC.create(ForgeConfig.CONFIG, new ForgeKeyMapFacade(context), new ForgeEventFacade());
+		context.registerConfig(ModConfig.Type.CLIENT, ForgeConfig.SPEC);
+		ModConfigEvent.Reloading.getBus(context.getModBusGroup()).addListener(this::onConfigReload);
 	}
 	
 	private void onConfigReload(ModConfigEvent.Reloading event)

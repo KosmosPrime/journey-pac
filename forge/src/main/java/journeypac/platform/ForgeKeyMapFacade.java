@@ -14,15 +14,15 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 public final class ForgeKeyMapFacade implements KeyMapFacade
 {
-	public ForgeKeyMapFacade()
+	public ForgeKeyMapFacade(FMLJavaModLoadingContext context)
 	{
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onRegister);
+		RegisterKeyMappingsEvent.getBus(context.getModBusGroup()).addListener(this::onRegister);
 		
 		// manually check keybinds because the fullscreen map doesn't pass events
-		MinecraftForge.EVENT_BUS.addListener(this::onKeyPressed);
-		MinecraftForge.EVENT_BUS.addListener(this::onKeyReleased);
-		MinecraftForge.EVENT_BUS.addListener(this::onMousePressed);
-		MinecraftForge.EVENT_BUS.addListener(this::onMouseReleased);
+		ScreenEvent.KeyPressed.Post.BUS.addListener(this::onKeyPressed);
+		ScreenEvent.KeyReleased.Post.BUS.addListener(this::onKeyReleased);
+		ScreenEvent.MouseButtonPressed.Post.BUS.addListener(this::onMousePressed);
+		ScreenEvent.MouseButtonReleased.Post.BUS.addListener(this::onMouseReleased);
 	}
 	
 	private final List<KeyMapping> guiMappings = new ArrayList<>();

@@ -1,5 +1,3 @@
-modLoader="javafml"
-loaderVersion="[4,)"
 license="MIT"
 
 [[mods]]
@@ -8,7 +6,6 @@ version="${version}"
 displayName="${mod_name}"
 credits="Inspired by Journeymap Integrations (for FTB claims)"
 authors="${mod_author}"
-displayTest="IGNORE_ALL_VERSION"
 logoFile="logo.png"
 description='''
 Journeymap integration for Open Parties and Claims (by Xaero).
@@ -17,7 +14,7 @@ Journeymap integration for Open Parties and Claims (by Xaero).
 [[dependencies.journeypac]]
 	modId="neoforge"
 	type="required"
-	versionRange="[21.0.83,)"
+	versionRange="[21.8,)"
 	ordering="NONE"
 	side="CLIENT"
 

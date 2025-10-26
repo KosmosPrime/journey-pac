@@ -5,29 +5,9 @@ pluginManagement {
 		mavenCentral()
 
 		maven {
-			name = "Forge"
-			url = "https://maven.minecraftforge.net"
-		}
-
-		maven {
-			name = "NeoForged"
-			url = "https://maven.neoforged.net/releases"
-		}
-
-		maven {
-			name = "Fabric"
-			url = "https://maven.fabricmc.net/"
-		}
-
-		maven {
 			name = "Sponge Snapshots"
 			url = "https://repo.spongepowered.org/repository/maven-public/"
 		}
-	}
-
-	resolutionStrategy.eachPlugin {
-		if (requested.id.id == "org.spongepowered.gradle.vanilla")
-			useModule("org.spongepowered:vanillagradle:0.2.1-20240507.024226-82")
 	}
 }
 

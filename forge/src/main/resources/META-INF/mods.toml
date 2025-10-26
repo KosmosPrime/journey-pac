@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[51,)"
+loaderVersion="[58,)"
 license="MIT"
 
 [[mods]]
@@ -17,7 +17,7 @@ Journeymap integration for Open Parties and Claims (by Xaero).
 [[dependencies.journeypac]]
 	modId="forge"
 	mandatory=true
-	versionRange="[51.0.12,)"
+	versionRange="[58,)"
 	ordering="NONE"
 	side="CLIENT"
 

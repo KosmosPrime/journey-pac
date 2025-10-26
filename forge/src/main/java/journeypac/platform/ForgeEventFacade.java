@@ -10,6 +10,6 @@ public final class ForgeEventFacade implements EventFacade
 	public void onMousePre(OnMousePre func)
 	{
 		Consumer<InputEvent.MouseButton.Pre> wrapper = event -> func.onMousePre(event.getAction(), event.getButton());
-		MinecraftForge.EVENT_BUS.addListener(wrapper);
+		InputEvent.MouseButton.Pre.BUS.addListener(wrapper);
 	}
 }
