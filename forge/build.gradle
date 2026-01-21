@@ -1,5 +1,5 @@
 plugins {
-	id "net.minecraftforge.gradle" version "[6.0.36,6.2)"
+	id "net.minecraftforge.gradle" version "[6.0.46,6.2)"
 }
 
 base {
@@ -50,10 +50,10 @@ dependencies {
 	annotationProcessor "net.minecraftforge:eventbus-validator:7.0-beta.12"
 	compileOnly project(":common")
 
-	runtimeOnly "maven.modrinth:forge-config-api-port:FUcJO9LO" // 21.9.7
-	implementation "maven.modrinth:open-parties-and-claims:forge-1.21.8-0.25.8" // didn't update to 1.21.9
-	compileOnly("info.journeymap:journeymap-api-forge:2.0.0-1.21.9-SNAPSHOT") {changing = true}
-	runtimeOnly "maven.modrinth:journeymap:1.21.9-6.0.0-beta.53+forge"
+	runtimeOnly "maven.modrinth:forge-config-api-port:NkLL1vip" // 21.11.1
+	implementation "maven.modrinth:open-parties-and-claims:forge-1.21.8-0.25.8" // didn't update to 1.21.11
+	compileOnly("info.journeymap:journeymap-api-forge:2.0.0-1.21.11-SNAPSHOT") {changing = true}
+	runtimeOnly "maven.modrinth:journeymap:1.21.11-6.0.0-beta.55+forge"
 }
 
 tasks.withType(JavaCompile) {

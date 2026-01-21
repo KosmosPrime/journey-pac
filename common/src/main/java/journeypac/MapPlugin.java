@@ -24,8 +24,8 @@ import journeymap.api.v2.common.event.FullscreenEventRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import org.lwjgl.glfw.GLFW;
@@ -204,11 +204,11 @@ public class MapPlugin implements IClientPlugin
 		{
 			if (dimension != null)
 			{
-				JourneyPAC.LOGGER.debug("Rebuilding dimension " + dimension.location());
+				JourneyPAC.LOGGER.debug("Rebuilding dimension " + dimension.identifier());
 				// total rebuild, make sure to remove claims
 				hideClaims();
 				claimMap.clear();
-				buildDimension(opacApi.getClaimsManager().getDimension(dimension.location()));
+				buildDimension(opacApi.getClaimsManager().getDimension(dimension.identifier()));
 				if (showClaims) showClaims();
 			}
 		}
@@ -234,19 +234,19 @@ public class MapPlugin implements IClientPlugin
 		FullscreenEventRegistry.ADDON_BUTTON_DISPLAY_EVENT.subscribe(getModId(), event ->
 		{
 			event.getThemeButtonDisplay().addThemeToggleButton("button.journeypac.toggle_claims",
-					ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, "textures/gui/opac_btn.png"),
+					Identifier.fromNamespaceAndPath(JourneyPAC.MODID, "textures/gui/opac_btn.png"),
 					showClaims, this::onToggleClaims);
 		});
 		
 		opacApi = OpenPACClientAPI.get();
 		opacApi.getClaimsManager().getTracker().register(new IClaimsManagerListenerAPI()
 		{
-			public void onChunkChange(ResourceLocation dimension, int chunkX, int chunkZ, IPlayerChunkClaimAPI claim)
+			public void onChunkChange(Identifier dimension, int chunkX, int chunkZ, IPlayerChunkClaimAPI claim)
 			{
 				try
 				{
 					ResourceKey<Level> curr = MapPlugin.this.dimension;
-					if (curr != null && curr.location().equals(dimension))
+					if (curr != null && curr.identifier().equals(dimension))
 					{
 						JourneyPAC.LOGGER.debug("Updating chunk " + chunkX + " " + chunkZ + " in " + dimension);
 						int regionX = chunkX >> REGION_BITS, regionZ = chunkZ >> REGION_BITS;
@@ -288,12 +288,12 @@ public class MapPlugin implements IClientPlugin
 				}
 			}
 			
-			public void onWholeRegionChange(ResourceLocation dimension, int regionX, int regionZ)
+			public void onWholeRegionChange(Identifier dimension, int regionX, int regionZ)
 			{
 				try
 				{
 					ResourceKey<Level> curr = MapPlugin.this.dimension;
-					if (curr != null && curr.location().equals(dimension))
+					if (curr != null && curr.identifier().equals(dimension))
 					{
 						JourneyPAC.LOGGER.debug("Updating region " + regionX + " " + regionZ + " in " + dimension);
 						var dimClaims = opacApi.getClaimsManager().getDimension(dimension);
@@ -306,12 +306,12 @@ public class MapPlugin implements IClientPlugin
 				}
 			}
 			
-			public void onDimensionChange(ResourceLocation dimension)
+			public void onDimensionChange(Identifier dimension)
 			{
 				try
 				{
 					ResourceKey<Level> curr = MapPlugin.this.dimension;
-					if (curr != null && curr.location().equals(dimension))
+					if (curr != null && curr.identifier().equals(dimension))
 					{
 						JourneyPAC.LOGGER.debug("Updating dimension " + dimension);
 						// total rebuild, make sure to remove current claims
@@ -502,13 +502,13 @@ public class MapPlugin implements IClientPlugin
 				{
 					if (dimension != null)
 					{
-						JourneyPAC.LOGGER.warn("Started mapping " + event.dimension.location()
+						JourneyPAC.LOGGER.warn("Started mapping " + event.dimension.identifier()
 								+ " but already mapping " + dimension);
 					}
-					else JourneyPAC.LOGGER.debug("Start mapping " + event.dimension.location());
+					else JourneyPAC.LOGGER.debug("Start mapping " + event.dimension.identifier());
 					dimension = event.dimension;
 					// compute claims for this dimension
-					buildDimension(opacApi.getClaimsManager().getDimension(dimension.location()));
+					buildDimension(opacApi.getClaimsManager().getDimension(dimension.identifier()));
 					// show claims if enabled
 					if (showClaims) showClaims();
 					break;
@@ -517,15 +517,15 @@ public class MapPlugin implements IClientPlugin
 				{
 					if (dimension == null)
 					{
-						JourneyPAC.LOGGER.warn("Stopped mapping " + event.dimension.location()
+						JourneyPAC.LOGGER.warn("Stopped mapping " + event.dimension.identifier()
 								+ " but never started mapping");
 					}
 					else if (!dimension.equals(event.dimension))
 					{
-						JourneyPAC.LOGGER.warn("Stopped mapping " + event.dimension.location()
+						JourneyPAC.LOGGER.warn("Stopped mapping " + event.dimension.identifier()
 								+ " but currently mapping " + dimension);
 					}
-					else JourneyPAC.LOGGER.debug("Stop mapping " + event.dimension.location());
+					else JourneyPAC.LOGGER.debug("Stop mapping " + event.dimension.identifier());
 					hideClaims();
 					claimMap.clear();
 					dimension = null;

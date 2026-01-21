@@ -74,4 +74,8 @@ subprojects {
 	tasks.withType(GenerateModuleMetadata) {
 		enabled = false
 	}
+
+	tasks.withType(Test) {
+		failOnNoDiscoveredTests = false
+	}
 }

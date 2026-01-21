@@ -12,4 +12,5 @@ pluginManagement {
 }
 
 rootProject.name = "JourneyPAC"
-include("common", "forge", "neoforge", "fabric")
+// Forge doesn't support gradle 9 yet
+include("common", /*"forge",*/ "neoforge", "fabric")

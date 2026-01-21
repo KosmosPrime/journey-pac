@@ -1,19 +1,19 @@
 package journeypac;
 
-import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 
 import journeypac.platform.KeyMapFacade;
 
 public class KeyMappings
 {
-	private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, "category"));
+	private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(JourneyPAC.MODID, "category"));
 	
 	private static KeyMapping createGui(KeyMapFacade keyMap, KeyMapping.Category category, String description, int keyCode)
 	{
-		description = Util.makeDescriptionId("key", ResourceLocation.fromNamespaceAndPath(JourneyPAC.MODID, description));
+		description = Util.makeDescriptionId("key", Identifier.fromNamespaceAndPath(JourneyPAC.MODID, description));
 		return keyMap.createGui(category, description, keyCode);
 	}
 	

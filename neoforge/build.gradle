@@ -1,5 +1,5 @@
 plugins {
-	id "net.neoforged.moddev" version "2.0.115"
+	id "net.neoforged.moddev" version "2.0.139"
 }
 
 base {
@@ -31,10 +31,10 @@ neoForge {
 dependencies {
 	compileOnly project(":common")
 
-	runtimeOnly "maven.modrinth:forge-config-api-port:21.9.7"
-	implementation "maven.modrinth:open-parties-and-claims:neoforge-1.21.9-0.25.6"
-	compileOnly("info.journeymap:journeymap-api-neoforge:2.0.0-1.21.9-SNAPSHOT") {changing = true}
-	runtimeOnly "maven.modrinth:journeymap:1.21.9-6.0.0-beta.53+neoforge"
+	runtimeOnly "maven.modrinth:forge-config-api-port:21.11.1"
+	implementation "maven.modrinth:open-parties-and-claims:neoforge-1.21.11-0.25.8"
+	compileOnly("info.journeymap:journeymap-api-neoforge:2.0.0-1.21.11-SNAPSHOT") {changing = true}
+	runtimeOnly "maven.modrinth:journeymap:1.21.11-6.0.0-beta.55+neoforge"
 }
 
 processResources {
