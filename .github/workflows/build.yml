@@ -11,10 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'temurin'
       - uses: actions/checkout@v4
       - name: Validate Gradle wrapper
@@ -28,11 +28,6 @@ jobs:
         with:
           name: JourneyPAC-Common
           path: common/build/libs
-      - name: Upload Results (Forge)
-        uses: actions/upload-artifact@v4
-        with:
-          name: JourneyPAC-Forge
-          path: forge/build/libs
       - name: Upload Results (NeoForge)
         uses: actions/upload-artifact@v4
         with:
