@@ -1,5 +1,5 @@
 plugins {
-	id "net.minecraftforge.gradle" version "[6.0.46,6.2)"
+	id "net.minecraftforge.gradle" version "[7.0.3,8)"
 }
 
 base {
@@ -8,7 +8,6 @@ base {
 
 minecraft {
 	mappings channel: "official", version: minecraft_version
-	reobf = false
 
 	if (project.hasProperty("forge_ats_enabled") && project.findProperty("forge_ats_enabled").toBoolean()) {
 		// This location is hardcoded in Forge and can not be changed.
@@ -19,10 +18,10 @@ minecraft {
 
 	runs {
 		client {
-			workingDirectory project.file("run")
-			property "forge.logging.markers", "REGISTRIES"
-			property "forge.logging.console.level", "debug"
-			property "eventbus.api.strictRuntimeChecks", "true"
+			workingDir = project.file("run")
+			systemProperty "forge.logging.markers", "REGISTRIES"
+			systemProperty "forge.logging.console.level", "debug"
+			systemProperty "eventbus.api.strictRuntimeChecks", "true"
 
 			mods {
 				journeypac {
@@ -34,24 +33,18 @@ minecraft {
 }
 
 repositories {
-	maven {
-		name = "Forge"
-		url = "https://maven.minecraftforge.net"
-	}
-
-	maven {
-		name = "Minecraft libraries"
-		url = "https://libraries.minecraft.net"
-	}
+	minecraft.mavenizer(it)
+	maven fg.forgeMaven
+	maven fg.minecraftLibsMaven
 }
 
 dependencies {
-	minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+	implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
 	annotationProcessor "net.minecraftforge:eventbus-validator:7.0-beta.12"
 	compileOnly project(":common")
 
 	runtimeOnly "maven.modrinth:forge-config-api-port:NkLL1vip" // 21.11.1
-	implementation "maven.modrinth:open-parties-and-claims:forge-1.21.8-0.25.8" // didn't update to 1.21.11
+	implementation "maven.modrinth:open-parties-and-claims:forge-1.21.11-0.25.10"
 	compileOnly("info.journeymap:journeymap-api-forge:2.0.0-1.21.11-SNAPSHOT") {changing = true}
 	runtimeOnly "maven.modrinth:journeymap:1.21.11-6.0.0-beta.55+forge"
 }
