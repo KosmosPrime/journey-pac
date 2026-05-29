@@ -8,7 +8,6 @@ import java.util.Map;
 import com.mojang.blaze3d.platform.InputConstants;
 import journeymap.api.v2.client.IClientAPI;
 import journeymap.api.v2.client.IClientPlugin;
-import journeymap.api.v2.client.JourneyMapPlugin;
 import journeymap.api.v2.client.display.Context;
 import journeymap.api.v2.client.display.PolygonOverlay;
 import journeymap.api.v2.client.event.DisplayUpdateEvent;
@@ -19,6 +18,7 @@ import journeymap.api.v2.client.model.MapPolygon;
 import journeymap.api.v2.client.model.ShapeProperties;
 import journeymap.api.v2.client.model.TextProperties;
 import journeymap.api.v2.client.util.UIState;
+import journeymap.api.v2.common.JourneyMapPlugin;
 import journeymap.api.v2.common.event.ClientEventRegistry;
 import journeymap.api.v2.common.event.FullscreenEventRegistry;
 import net.minecraft.client.Minecraft;
@@ -38,7 +38,7 @@ import xaero.pac.common.claims.tracker.api.IClaimsManagerListenerAPI;
 import journeypac.KeyMappings.ClaimMode;
 import journeypac.platform.ConfigFacade;
 
-@JourneyMapPlugin(apiVersion = IClientAPI.API_VERSION)
+@JourneyMapPlugin(apiVersion = "2.0.0")
 public class MapPlugin implements IClientPlugin
 {
 	public static final int REGION_BITS = 5;

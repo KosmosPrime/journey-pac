@@ -66,6 +66,7 @@ subprojects {
 	tasks.withType(JavaCompile) {
 		options.encoding = "UTF-8"
 		options.release = 25
+		options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
 	}
 
 	// Disables Gradle's custom module metadata from being published to maven. The
