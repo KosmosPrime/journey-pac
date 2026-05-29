@@ -1,36 +1,29 @@
 plugins {
-	id "net.fabricmc.fabric-loom-remap" version "1.14-SNAPSHOT"
+	id "net.fabricmc.fabric-loom" version "1.16-SNAPSHOT"
 }
 
 base {
 	archivesName = "${mod_name}-fabric-${minecraft_version}"
 }
 
-configurations {
-	modRuntimeOnly.extendsFrom modRuntimeNest
-}
-
 dependencies {
 	minecraft "com.mojang:minecraft:${minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-	implementation project(":common")
+	implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
-	modRuntimeNest "maven.modrinth:forge-config-api-port:uXrWPsCu" // 21.11.1
-	modImplementation "maven.modrinth:open-parties-and-claims:fabric-1.21.11-0.25.8"
-	modApi("info.journeymap:journeymap-api-fabric:2.0.0-1.21.11-SNAPSHOT") {changing = true}
-	modRuntimeNest "maven.modrinth:journeymap:1.21.11-6.0.0-beta.55+fabric"
-
-	// loom strips nested jars, this adds them back in
-	modRuntimeOnly configurations.modRuntimeNest.incoming.files.collect {
-		zipTree(it).matching {
-			include "META-INF/jars/*.jar"
-		}
-	}
+	runtimeOnly "maven.modrinth:forge-config-api-port:mwAOaKnn" // 26.1.4
+	implementation "maven.modrinth:open-parties-and-claims:fabric-26.1.2-0.26.3"
+	compileOnly("info.journeymap:journeymap-api-fabric:2.0.0-26.1-SNAPSHOT") {changing = true}
+	runtimeOnly "maven.modrinth:journeymap:26.1-6.0.0-beta.67+fabric"
 }
 
 loom {
+	mods {
+		"${mod_id}" {
+			sourceSet sourceSets.main
+		}
+	}
+
 	runs {
 		client {
 			client()

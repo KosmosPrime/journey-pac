@@ -24,7 +24,7 @@ minecraft {
 			systemProperty "eventbus.api.strictRuntimeChecks", "true"
 
 			mods {
-				journeypac {
+				"${mod_id}" {
 					source sourceSets.main
 				}
 			}
@@ -43,10 +43,10 @@ dependencies {
 	annotationProcessor "net.minecraftforge:eventbus-validator:7.0-beta.12"
 	compileOnly project(":common")
 
-	runtimeOnly "maven.modrinth:forge-config-api-port:NkLL1vip" // 21.11.1
-	implementation "maven.modrinth:open-parties-and-claims:forge-1.21.11-0.25.10"
-	compileOnly("info.journeymap:journeymap-api-forge:2.0.0-1.21.11-SNAPSHOT") {changing = true}
-	runtimeOnly "maven.modrinth:journeymap:1.21.11-6.0.0-beta.55+forge"
+	runtimeOnly "maven.modrinth:forge-config-api-port:26.1.4"
+	compileOnly "maven.modrinth:open-parties-and-claims:forge-1.21.11-0.25.10" // not updated yet, use as API only
+	compileOnly("info.journeymap:journeymap-api-forge:2.0.0-26.1-SNAPSHOT") {changing = true}
+	runtimeOnly "maven.modrinth:journeymap:26.1-6.0.0-beta.67+forge"
 }
 
 tasks.withType(JavaCompile) {

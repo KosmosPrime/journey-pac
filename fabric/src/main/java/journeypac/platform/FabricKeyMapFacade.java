@@ -3,7 +3,7 @@ package journeypac.platform;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
@@ -37,7 +37,7 @@ public final class FabricKeyMapFacade implements KeyMapFacade
 	
 	protected void onRegister()
 	{
-		guiMappings.forEach(KeyBindingHelper::registerKeyBinding);
+		guiMappings.forEach(KeyMappingHelper::registerKeyMapping);
 	}
 	
 	// for handling fabric events

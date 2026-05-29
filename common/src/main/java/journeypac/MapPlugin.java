@@ -629,7 +629,7 @@ public class MapPlugin implements IClientPlugin
 					if (mc.player != null)
 					{
 						ChunkPos chunk = mc.player.chunkPosition();
-						int chunkX = chunk.x, chunkZ = chunk.z;
+						int chunkX = chunk.x(), chunkZ = chunk.z();
 						int range = opacApi.getClaimsManager().getMaxClaimDistance();
 						if (validOverlay == null || (chunkX != validCenterX) || (chunkZ != validCenterZ) || (range != validRange))
 						{
